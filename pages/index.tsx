@@ -64,12 +64,12 @@ export default function Home() {
   const { mutate: updateAsset, status: updateStatus } = useUpdateAsset(
     asset
       ? {
-          assetId: asset.id,
           name: assetName,
+          assetId: asset.id,
           storage: {
             ipfs: true,
             metadata: {
-              url: externalLink,
+              externalLink,
               description,
               supply,
             },
@@ -146,9 +146,13 @@ export default function Home() {
         <meta name='description' content='Livepeer Studio Sample App' />
         <link rel='icon' href='/favicon.ico' />
       </Head>
-
-      {/* <div className={styles.footer}>
-        <div>
+      {/* Wallet COnnect Button */}
+      <div className={styles.walletButton}>
+        <ConnectButton />
+      </div>
+      {/* Social */}
+      <div className={styles.icon}>
+        <div className={styles.discord}>
           <Link href='https://discord.com/channels/423160867534929930/821523349292711946'>
             <Image
               className={styles.discordLogo}
@@ -172,11 +176,9 @@ export default function Home() {
           </Link>
           <p>Share</p>
         </div>
-      </div> */}
-      {/* Wallet COnnect Button */}
-      <div className={styles.walletButton}>
-        <ConnectButton />
       </div>
+
+      {/* Main page */}
       <div className={styles.main}>
         <h1 className={styles.title}>Livepeer Studio Mint Video NFT</h1>
       </div>
@@ -257,11 +259,11 @@ export default function Home() {
                       }}
                       disabled={!video || isLoading || Boolean(asset)}
                     >
-                      Mint Asset
+                      Mint NFT
                       <br />
                       {isLoading && <BarLoader color='#fff' />}
                     </button>
-                  )  : contractWriteData?.hash && isSuccess ? (
+                  ) : contractWriteData?.hash && isSuccess ? (
                     <a
                       className={styles.link}
                       target='_blank'
@@ -272,7 +274,7 @@ export default function Home() {
                     </a>
                   ) : contractWriteError ? (
                     <p>{contractWriteError.message}</p>
-                  )  : (
+                  ) : (
                     <></>
                   )}
                 </div>

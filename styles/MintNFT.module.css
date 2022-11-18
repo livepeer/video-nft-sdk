@@ -4,7 +4,6 @@
 
 .main {
   /* min-height: 100vh; */
-  padding: 4rem 0;
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -14,7 +13,6 @@
 
 .main2 {
   /* min-height: 100vh; */
-  padding: 4rem 0;
   flex: 1;
   display: flex;
   flex-direction: row;
@@ -131,7 +129,7 @@
 }
 
 .walletButton {
-  margin-top: 3rem;
+  margin-top: 2rem;
   margin-right: 1rem;
   display: flex;
   justify-content: flex-end;
@@ -156,16 +154,20 @@
   text-decoration: underline;
 }
 
-.footer {
-  margin-top: 2rem;
-  margin-left: 1rem;
+.icon {
+  margin: 1rem 0 0 107rem;
   display: flex;
+  /* flex-direction: column; */
   justify-content: start;
 }
 
-.footer p {
-  margin-left: 1rem;
+.icon p {
+margin-left: 3px;
 color: #245cd8;
+}
+
+.discord{
+  margin-right: 1rem;
 }
 
 @media (max-width: 600px) {

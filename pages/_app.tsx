@@ -1,7 +1,7 @@
 import '../styles/globals.css';
 import type { AppProps } from 'next/app';
 import { LivepeerConfig, createReactClient, studioProvider } from '@livepeer/react';
-import { WagmiConfig, defaultChains, createClient, configureChains } from 'wagmi';
+import { WagmiConfig, chain, createClient, configureChains } from 'wagmi';
 
 import '@rainbow-me/rainbowkit/styles.css';
 
@@ -10,13 +10,14 @@ import { getDefaultWallets, RainbowKitProvider, darkTheme } from '@rainbow-me/ra
 import { publicProvider } from 'wagmi/providers/public';
 import { infuraProvider } from 'wagmi/providers/infura';
 
-const { chains, provider, webSocketProvider } = configureChains(defaultChains, [
-  infuraProvider({ apiKey: process.env.NEXT_PUBLIC_INFURA_API_KEY }),
+const { chains, provider, webSocketProvider } = configureChains(
+  [chain.mainnet, chain.polygon, chain.polygonMumbai],
+  [infuraProvider({ apiKey: process.env.NEXT_PUBLIC_INFURA_API_KEY }),
   publicProvider(),
 ]);
 
 const { connectors } = getDefaultWallets({
-  appName: 'Playback Policy',
+  appName: 'Mint NFT',
   chains,
 });
 const wagmiClient = createClient({
