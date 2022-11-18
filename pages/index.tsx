@@ -2,7 +2,7 @@ import Head from 'next/head';
 import Image from 'next/image';
 import discordLogo from '../public/icons8-discord-48.png';
 import twitterLogo from '../public/icons8-twitter-48.png';
-import { useMemo, useCallback, useState } from 'react';
+import { useMemo, useCallback, useState, useEffect } from 'react';
 import { useAsset, useUpdateAsset, useCreateAsset, Player } from '@livepeer/react';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { useDropzone } from 'react-dropzone';
@@ -27,7 +27,7 @@ export default function Home() {
 
   const {
     mutate: createAsset,
-    data: assetId,
+    data: createdAsset,
     status: createStatus,
     progress,
   } = useCreateAsset(
@@ -57,8 +57,7 @@ export default function Home() {
     error,
     status: assetStatus,
   } = useAsset({
-    assetId,
-    enabled: assetId?.length === 36,
+    assetId: createdAsset?.[0].id,
     refetchInterval: (asset) => (asset?.storage?.status?.phase !== 'ready' ? 5000 : false),
   });
 
@@ -66,11 +65,11 @@ export default function Home() {
     asset
       ? {
           assetId: asset.id,
+          name: assetName,
           storage: {
             ipfs: true,
             metadata: {
-              assetName,
-              externalLink,
+              url: externalLink,
               description,
               supply,
             },
@@ -126,6 +125,19 @@ export default function Home() {
       isContractWriteLoading,
     [asset, assetStatus, updateStatus, isContractWriteLoading, createStatus, isExportStarted]
   );
+
+  useEffect(() => {
+    if (updateAsset && updateStatus === 'idle') {
+      updateAsset();
+    }
+  }, [ updateAsset, updateStatus ] );
+  
+  useEffect(() => {
+    if (asset?.storage?.status?.phase === 'ready' && write) {
+      write();
+    }
+  }, [write, asset?.storage?.status?.phase]);
+
 
   return (
     <div className={styles.container}>
@@ -245,33 +257,11 @@ export default function Home() {
                       }}
                       disabled={!video || isLoading || Boolean(asset)}
                     >
-                      Upload Asset
+                      Mint Asset
                       <br />
                       {isLoading && <BarLoader color='#fff' />}
                     </button>
-                  ) : asset?.status?.phase === 'ready' &&
-                    asset?.storage?.status?.phase !== 'ready' ? (
-                    <button
-                      className={styles.button}
-                      onClick={() => {
-                        if (asset?.id) {
-                          setIsExportedStarted(true);
-                          updateAsset?.();
-                        }
-                      }}
-                      disabled={
-                        !updateAsset ||
-                        isLoading ||
-                        Boolean(asset?.storage?.ipfs?.cid) ||
-                        !assetName ||
-                        !description
-                      }
-                    >
-                      Upload to IPFS
-                      <br />
-                      {isLoading && <BarLoader color='#fff' />}
-                    </button>
-                  ) : contractWriteData?.hash && isSuccess ? (
+                  )  : contractWriteData?.hash && isSuccess ? (
                     <a
                       className={styles.link}
                       target='_blank'
@@ -282,18 +272,7 @@ export default function Home() {
                     </a>
                   ) : contractWriteError ? (
                     <p>{contractWriteError.message}</p>
-                  ) : asset?.storage?.status?.phase === 'ready' && write ? (
-                    <button
-                      className={styles.button}
-                      onClick={() => {
-                        write();
-                      }}
-                    >
-                      Mint NFT
-                      <br />
-                      {isSuccess && <BarLoader color='#fff' />}
-                    </button>
-                  ) : (
+                  )  : (
                     <></>
                   )}
                 </div>
