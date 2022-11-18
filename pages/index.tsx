@@ -81,12 +81,16 @@ export default function Home() {
 
   const progressFormatted = useMemo(
     () =>
-      progress
-        ? `Uploading: ${Math.round(progress * 100)}%`
-        : asset?.status?.progress
-        ? `Processing: ${Math.round(asset?.status?.progress * 100)}%`
+      progress?.[0].phase === 'failed'
+        ? 'Failed to process video.'
+        : progress?.[0].phase === 'waiting'
+        ? 'Waiting'
+        : progress?.[0].phase === 'uploading'
+        ? `Uploading: ${Math.round(progress?.[0]?.progress * 100)}%`
+        : progress?.[0].phase === 'processing'
+        ? `Processing: ${Math.round(progress?.[0].progress * 100)}%`
         : null,
-    [progress, asset?.status?.progress]
+    [progress]
   );
 
   const { config } = usePrepareContractWrite({
