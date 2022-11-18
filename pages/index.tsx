@@ -13,8 +13,6 @@ import Link from 'next/link';
 
 import { videoNftAbi } from './videoNftAbi';
 
-const assetId = '';
-
 export default function Home() {
   const [video, setVideo] = useState<File | null>(null);
   const [assetName, setAssetName] = useState<string>('');
@@ -29,7 +27,7 @@ export default function Home() {
 
   const {
     mutate: createAsset,
-    data: assets,
+    data: assetId,
     status: createStatus,
     progress,
   } = useCreateAsset(
