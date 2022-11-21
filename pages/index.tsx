@@ -1,5 +1,6 @@
 import Head from 'next/head';
 import Image from 'next/image';
+import livepeerLogo from '../public/livepeer-Logo.png'
 import discordLogo from '../public/icons8-discord-48.png';
 import twitterLogo from '../public/icons8-twitter-48.png';
 import { useMemo, useCallback, useState, useEffect } from 'react';
@@ -15,7 +16,8 @@ import { videoNftAbi } from './videoNftAbi';
 
 export default function Home() {
   const [video, setVideo] = useState<File | null>(null);
-  const [assetName, setAssetName] = useState<string>('');
+  const [ assetName, setAssetName ] = useState<string>( '' );
+  const [ disabled, setDisabled ] = useState < boolean > (false);
   const [externalLink, setExternalLink] = useState<string>();
   const [description, setDescription] = useState<string>();
   const [supply, setSupply] = useState<number>();
@@ -146,10 +148,17 @@ export default function Home() {
         <meta name='description' content='Livepeer Studio Sample App' />
         <link rel='icon' href='/favicon.ico' />
       </Head>
+
       {/* Wallet COnnect Button */}
       <div className={styles.walletButton}>
+        <div className={styles.livepeerLogo}>
+          <Link href='https://www.livepeer.studio'>
+            <Image src={livepeerLogo} alt='Livepeer logo' width={180} height={50}></Image>
+          </Link>
+        </div>
         <ConnectButton />
       </div>
+
       {/* Social */}
       <div className={styles.icon}>
         <div className={styles.discord}>
@@ -177,7 +186,6 @@ export default function Home() {
           <p>Share</p>
         </div>
       </div>
-
       {/* Main page */}
       <div className={styles.main}>
         <h1 className={styles.title}>Livepeer Studio Mint Video NFT</h1>
@@ -189,7 +197,11 @@ export default function Home() {
           ) : (
             address && (
               <div>
-                {asset?.status?.phase !== 'ready' ? (
+                {asset?.storage?.ipfs?.cid ? (
+                  <div className={styles.player}>
+                    <Player playbackId={asset?.storage?.ipfs?.cid} />
+                  </div>
+                ) : asset?.status?.phase !== 'ready' ? (
                   <div className={styles.drop} {...getRootProps()}>
                     <input {...getInputProps()} />
                     <div>
@@ -203,7 +215,7 @@ export default function Home() {
                 {/* Display Upload Progress */}
                 <div className={styles.progress}>
                   {video ? <p>{progressFormatted}</p> : <p>Select a video file to upload.</p>}
-                  {/* {progressFormatted && <p>{progressFormatted}</p>} */}
+                  {progressFormatted && <p>{progressFormatted}</p>}
                 </div>
                 <div className={styles.form}>
                   <label htmlFor='asset-name' className={styles.label}>
@@ -215,6 +227,7 @@ export default function Home() {
                     value={assetName}
                     name='asset-name'
                     required
+                    disabled={disabled}
                     onChange={(e) => setAssetName(e.target.value)}
                   />
                   <label htmlFor='external-link' className={styles.label}>
@@ -225,6 +238,7 @@ export default function Home() {
                     type='text'
                     value={externalLink}
                     name='external-link'
+                    disabled={disabled}
                     onChange={(e) => setExternalLink(e.target.value)}
                   />
                   <label htmlFor='description' className={styles.label}>
@@ -234,6 +248,7 @@ export default function Home() {
                     className={styles.formInput}
                     value={description}
                     name='description'
+                    disabled={disabled}
                     onChange={(e) => setDescription(e.target.value)}
                   />
                   <label htmlFor='supply' className={styles.label}>
@@ -244,6 +259,7 @@ export default function Home() {
                     type='number'
                     value={supply}
                     name='supply-amount'
+                    disabled={disabled}
                     onChange={(e) => setSupply(Number(e.target.value))}
                   />
                 </div>
@@ -254,7 +270,7 @@ export default function Home() {
                       className={styles.button}
                       onClick={() => {
                         if (video) {
-                          createAsset?.();
+                          setDisabled(true), createAsset?.();
                         }
                       }}
                       disabled={!video || isLoading || Boolean(asset)}
@@ -282,11 +298,6 @@ export default function Home() {
             )
           )}
         </div>
-        {asset?.storage?.ipfs?.cid ? (
-          <div className={styles.player}>
-            <Player playbackId={asset?.storage?.ipfs?.cid} />
-          </div>
-        ) : null}
       </div>
     </div>
   );
