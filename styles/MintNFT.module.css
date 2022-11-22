@@ -102,7 +102,6 @@ border-radius: 5px;
   display: flex;
   flex-direction: column;
   marign: 10rem;
-  /* justify-content: center; */
 }
 
 .label {
