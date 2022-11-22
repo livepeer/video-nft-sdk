@@ -21,7 +21,9 @@ export default function Home() {
   const [externalLink, setExternalLink] = useState<string>();
   const [description, setDescription] = useState<string>();
   const [supply, setSupply] = useState<number>();
-  const [isExportStarted, setIsExportedStarted] = useState(false);
+  const [ isExportStarted, setIsExportedStarted ] = useState( false );
+  const [ isWriteInProgress, setIsWriteInProgress ] = useState<boolean>();
+  const [ isUpdateAsset, setIsUpdateAsset ] = useState<boolean>();
 
   const { address } = useAccount();
 
@@ -129,16 +131,20 @@ export default function Home() {
   );
 
   useEffect(() => {
-    if (updateAsset && updateStatus === 'idle') {
+    if ( !isUpdateAsset && updateAsset && updateStatus === 'idle' ) {
+      console.log('updateAsset', updateStatus);
+      setIsUpdateAsset(true)
       updateAsset();
     }
-  }, [ updateAsset, updateStatus ] );
+  }, [ updateAsset, updateStatus, isUpdateAsset ] );
   
   useEffect(() => {
-    if (asset?.storage?.status?.phase === 'ready' && write) {
+    if ( !isWriteInProgress && asset?.storage?.status?.phase === 'ready' && write ) {
+      console.log( 'assetPhase', asset?.storage?.status?.phase );
+      setIsWriteInProgress( true );
       write();
     }
-  }, [write, asset?.storage?.status?.phase]);
+  }, [write, asset?.storage?.status?.phase, isWriteInProgress]);
 
 
   return (
@@ -210,12 +216,20 @@ export default function Home() {
                       </p>
                     </div>
                   </div>
+                ) : createStatus === 'loading' ? (
+                  <p>File is loading</p>
                 ) : null}
 
                 {/* Display Upload Progress */}
                 <div className={styles.progress}>
-                  {video ? <p>{progressFormatted}</p> : <p>Select a video file to upload.</p>}
-                  {progressFormatted && <p>{progressFormatted}</p>}
+                  {video ? (
+                    <p>{progressFormatted}</p>
+                  ) : asset?.storage && asset?.storage?.status?.phase !== 'processing' ? (
+                    <p>Uploading to IPFS</p>
+                  ) : (
+                    <p>Select a video file to upload.</p>
+                  )}
+                  {/* {progressFormatted && <p>{progressFormatted}</p>} */}
                 </div>
                 <div className={styles.form}>
                   <label htmlFor='asset-name' className={styles.label}>
