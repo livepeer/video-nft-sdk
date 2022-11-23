@@ -1,8 +1,5 @@
 import Head from 'next/head';
 import Image from 'next/image';
-import livepeerLogo from '/public/livepeer-Logo.png'
-import discordLogo from '/public/icons8-discord-48.png';
-import twitterLogo from '/public/icons8-twitter-48.png';
 import { useMemo, useCallback, useState, useEffect } from 'react';
 import { useAsset, useUpdateAsset, useCreateAsset, Player } from '@livepeer/react';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
@@ -158,7 +155,7 @@ export default function Home() {
       {/* Wallet Connect Button */}
       <div className='flex justify-between mt-10'>
         <Link href='https://www.livepeer.studio'>
-          <Image src={livepeerLogo} alt='Livepeer logo' width={180} height={50}></Image>
+          <Image src='/livepeer-Logo.png' alt='Livepeer logo' width={180} height={50}></Image>
         </Link>
         <ConnectButton />
       </div>
@@ -167,13 +164,19 @@ export default function Home() {
       <div className='flex mt-6 ml-4'>
         <div className='mr-10'>
           <Link href='https://discord.com/channels/423160867534929930/821523349292711946'>
-            <Image className='ml-2' src={discordLogo} alt='Discord logo' width={40} height={40} />
+            <Image
+              className='ml-2'
+              src='/icons8-discord-48.png'
+              alt='Discord logo'
+              width={40}
+              height={40}
+            />
           </Link>
           <p className='text-blue-600'>Support</p>
         </div>
         <div>
           <Link href='https://twitter.com/intent/tweet?text=Video%20NFT%20created%20on%20Livepeer%20Studio%20app'>
-            <Image src={twitterLogo} alt='Twitter logo' width={40} height={40} />
+            <Image src='/icons8-twitter-48.png' alt='Twitter logo' width={40} height={40} />
           </Link>
           <p className='text-blue-600'>Share</p>
         </div>
@@ -188,23 +191,23 @@ export default function Home() {
             <p>Please connect your wallet</p>
           ) : (
             address && (
-                <div>
-                  { asset?.storage?.ipfs?.cid ? (
-                    <div className={ styles.player }>
-                      <Player playbackId={ asset?.storage?.ipfs?.cid } />
+              <div>
+                {asset?.storage?.ipfs?.cid ? (
+                  <div className={styles.player}>
+                    <Player playbackId={asset?.storage?.ipfs?.cid} />
+                  </div>
+                ) : asset?.status?.phase !== 'ready' ? (
+                  <div className={styles.drop} {...getRootProps()}>
+                    <input {...getInputProps()} />
+                    <div>
+                      <p className='text-center'>
+                        Drag and drop or <span>browse files</span>
+                      </p>
                     </div>
-                  ) : asset?.status?.phase !== 'ready' ? (
-                    <div className={ styles.drop } { ...getRootProps() }>
-                      <input { ...getInputProps() } />
-                      <div>
-                        <p className='text-center'>
-                          Drag and drop or <span>browse files</span>
-                        </p>
-                      </div>
-                    </div>
-                  ) :
-                    <></>
-                  }
+                  </div>
+                ) : (
+                  <></>
+                )}
 
                 {/* Display Upload Progress */}
                 <div className={styles.progress}>
@@ -212,9 +215,9 @@ export default function Home() {
                     <p>{progressFormatted}</p>
                   ) : asset?.storage?.status ? (
                     <p>{asset?.storage?.status?.progress}</p>
-                      ) :  
+                  ) : (
                     <p>Select a video file to upload.</p>
-                    }
+                  )}
                 </div>
                 <div className={styles.form}>
                   <label htmlFor='asset-name' className='text-left'>
