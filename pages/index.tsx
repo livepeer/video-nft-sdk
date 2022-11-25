@@ -155,7 +155,7 @@ export default function Home() {
       {/* Wallet Connect Button */}
       <div className='flex justify-between mt-10'>
         <Link href='https://www.livepeer.studio'>
-          <Image src='/livepeer-Logo.png' alt='Livepeer logo' width={180} height={50}></Image>
+          <Image src='/livepeer-logo.png' alt='Livepeer logo' width={180} height={50}></Image>
         </Link>
         <ConnectButton />
       </div>
@@ -189,14 +189,31 @@ export default function Home() {
         <div className='border-4 border-solid border-gray-600 rounded-md p-6 w-1/3'>
           {!address ? (
             <p>Please connect your wallet</p>
+          ) : asset?.storage?.ipfs?.cid ? (
+            <div>
+              <div className={styles.player}>
+                <Player playbackId={asset?.storage?.ipfs?.cid} />
+              </div>
+              <div>
+                {contractWriteData?.hash && isSuccess ? (
+                  <a
+                    target='_blank'
+                    href={`https://mumbai.polygonscan.com/tx/${contractWriteData.hash}`}
+                    rel='noreferrer'
+                  >
+                    <button className=' bg-blue-600 rounded p-3 text-white hover:text-gray-800'>View Mint Transaction</button>
+                  </a>
+               ): contractWriteError ? (
+                    <p>{contractWriteError.message}</p>
+                  ) : (
+                    <></>
+                )}
+              </div>
+            </div>
           ) : (
             address && (
               <div>
-                {asset?.storage?.ipfs?.cid ? (
-                  <div className={styles.player}>
-                    <Player playbackId={asset?.storage?.ipfs?.cid} />
-                  </div>
-                ) : asset?.status?.phase !== 'ready' ? (
+                {asset?.status?.phase !== 'ready' ? (
                   <div className={styles.drop} {...getRootProps()}>
                     <input {...getInputProps()} />
                     <div>
@@ -215,7 +232,7 @@ export default function Home() {
                     <p>{progressFormatted}</p>
                   ) : asset?.storage?.status ? (
                     <p>{asset?.storage?.status?.progress}</p>
-                  ) : (
+                        ) : (
                     <p>Select a video file to upload.</p>
                   )}
                 </div>
@@ -281,17 +298,17 @@ export default function Home() {
                       <br />
                       {isLoading && <BarLoader color='#fff' />}
                     </button>
-                  ) : contractWriteData?.hash && isSuccess ? (
-                    <a
-                      className={styles.link}
-                      target='_blank'
-                      href={`https://mumbai.polygonscan.com/tx/${contractWriteData.hash}`}
-                      rel='noreferrer'
-                    >
-                      <button>View Mint Transaction</button>
-                    </a>
-                  ) : contractWriteError ? (
-                    <p>{contractWriteError.message}</p>
+                  // ) : // ) : contractWriteData?.hash && isSuccess ? (
+                  //   <a
+                  //     className={styles.link}
+                  //     target='_blank'
+                  //     href={`https://mumbai.polygonscan.com/tx/${contractWriteData.hash}`}
+                  //     rel='noreferrer'
+                  //   >
+                  //     <button>View Mint Transaction</button>
+                  //   </a>
+                  // contractWriteError ? (
+                  //   <p>{contractWriteError.message}</p>
                   ) : (
                     <></>
                   )}
