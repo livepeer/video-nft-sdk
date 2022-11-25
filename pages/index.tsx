@@ -194,20 +194,29 @@ export default function Home() {
               <div className={styles.player}>
                 <Player playbackId={asset?.storage?.ipfs?.cid} />
               </div>
+              <div className='overflow-scroll border-4 border-solid border-gray-600 rounded-md p-6 mb-4'>
+                <p className='text-left text-blue-600'>CID: {asset?.storage?.ipfs?.cid}</p>
+                <p className='text-left text-blue-600'>URL: {asset?.storage?.ipfs?.url}</p>
+                <p className='text-left text-blue-600'>
+                  Gateway URL: {asset?.storage?.ipfs?.gatewayUrl}
+                </p>
+                </div>
               <div>
                 {contractWriteData?.hash && isSuccess ? (
                   <a
-                    target='_blank'
-                    href={`https://mumbai.polygonscan.com/tx/${contractWriteData.hash}`}
-                    rel='noreferrer'
+                  target='_blank'
+                  href={`https://mumbai.polygonscan.com/tx/${contractWriteData.hash}`}
+                  rel='noreferrer'
                   >
-                    <button className=' bg-blue-600 rounded p-3 text-white hover:text-gray-800'>View Mint Transaction</button>
+                    <button className=' bg-blue-600 rounded p-3 text-white hover:text-gray-800'>
+                      View Mint Transaction
+                    </button>
                   </a>
-               ): contractWriteError ? (
-                    <p>{contractWriteError.message}</p>
+                ) : contractWriteError ? (
+                  <p>{contractWriteError.message}</p>
                   ) : (
                     <></>
-                )}
+                    )}
               </div>
             </div>
           ) : (
@@ -222,7 +231,7 @@ export default function Home() {
                       </p>
                     </div>
                   </div>
-                    ) : (
+                ) : (
                   <></>
                 )}
 
@@ -232,10 +241,10 @@ export default function Home() {
                     <p>{progressFormatted}</p>
                   ) : asset?.storage?.status ? (
                     <p>{asset?.storage?.status?.progress}</p>
-                        ) : (
+                  ) : (
                     <p>Select a video file to upload.</p>
                   )}
-                    </div>
+                </div>
                 <div className={styles.form}>
                   <label htmlFor='asset-name' className='text-left'>
                     Name:{' '}
