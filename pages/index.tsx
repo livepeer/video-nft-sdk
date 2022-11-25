@@ -222,7 +222,7 @@ export default function Home() {
                       </p>
                     </div>
                   </div>
-                ) : (
+                    ) : (
                   <></>
                 )}
 
@@ -235,7 +235,7 @@ export default function Home() {
                         ) : (
                     <p>Select a video file to upload.</p>
                   )}
-                </div>
+                    </div>
                 <div className={styles.form}>
                   <label htmlFor='asset-name' className='text-left'>
                     Name:{' '}
@@ -298,17 +298,6 @@ export default function Home() {
                       <br />
                       {isLoading && <BarLoader color='#fff' />}
                     </button>
-                  // ) : // ) : contractWriteData?.hash && isSuccess ? (
-                  //   <a
-                  //     className={styles.link}
-                  //     target='_blank'
-                  //     href={`https://mumbai.polygonscan.com/tx/${contractWriteData.hash}`}
-                  //     rel='noreferrer'
-                  //   >
-                  //     <button>View Mint Transaction</button>
-                  //   </a>
-                  // contractWriteError ? (
-                  //   <p>{contractWriteError.message}</p>
                   ) : (
                     <></>
                   )}
