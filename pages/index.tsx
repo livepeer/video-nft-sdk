@@ -5,6 +5,7 @@ import { useAsset, useUpdateAsset, useCreateAsset, Player } from '@livepeer/reac
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { useDropzone } from 'react-dropzone';
 import BarLoader from 'react-spinners/BarLoader';
+import PulseLoader from 'react-spinners/PulseLoader';
 import { useAccount, useContractWrite, usePrepareContractWrite } from 'wagmi';
 import styles from '../styles/MintNFT.module.css';
 import Link from 'next/link';
@@ -13,14 +14,14 @@ import { videoNftAbi } from '../components/videoNftAbi';
 
 export default function Home() {
   const [video, setVideo] = useState<File | null>(null);
-  const [ assetName, setAssetName ] = useState<string>( '' );
-  const [ disabled, setDisabled ] = useState < boolean > (false);
+  const [assetName, setAssetName] = useState<string>('');
+  const [disabled, setDisabled] = useState<boolean>(false);
   const [externalLink, setExternalLink] = useState<string>();
   const [description, setDescription] = useState<string>();
   const [supply, setSupply] = useState<number>();
-  const [ isWriteInProgress, setIsWriteInProgress ] = useState<boolean>();
-  const [ isUpdateAsset, setIsUpdateAsset ] = useState<boolean>();
-
+  const [isWriteInProgress, setIsWriteInProgress] = useState<boolean>();
+  const [isUpdateAsset, setIsUpdateAsset] = useState<boolean>();
+  const [isUploadingToIPFS, setIsUploadingToIPFS] = useState<boolean>(false);
   const { address } = useAccount();
 
   // Creating an asset
@@ -127,22 +128,22 @@ export default function Home() {
 
   // Runs after an asset is created
   useEffect(() => {
-    if ( !isUpdateAsset && updateAsset && updateStatus === 'idle' ) {
-      console.log( 'updateAsset', updateStatus );
-      setIsUpdateAsset(true)
+    if (!isUpdateAsset && updateAsset && updateStatus === 'idle') {
+      setIsUploadingToIPFS(true);
+      // console.log('updateAsset', updateStatus);
+      setIsUpdateAsset(true);
       updateAsset();
     }
-  }, [ updateAsset, updateStatus, isUpdateAsset ] );
-  
+  }, [updateAsset, updateStatus, isUpdateAsset]);
+
   // Runs after an asset is uploaded to IPFS
   useEffect(() => {
-    if ( !isWriteInProgress && asset?.storage?.status?.phase === 'ready' && write ) {
-      console.log( 'assetPhase', asset?.storage?.status?.phase );
-      setIsWriteInProgress( true );
+    if (!isWriteInProgress && asset?.storage?.status?.phase === 'ready' && write) {
+      // console.log('assetPhase', asset?.storage?.status?.phase);
+      setIsWriteInProgress(true);
       write();
     }
   }, [write, asset?.storage?.status?.phase, isWriteInProgress]);
-
 
   return (
     <div className={styles.container}>
@@ -181,138 +182,149 @@ export default function Home() {
           <p className='text-blue-600'>Share</p>
         </div>
       </div>
+
       {/* Main page */}
       <div className={styles.main}>
         <h1 className={styles.title}>Livepeer Studio Mint Video NFT</h1>
       </div>
       <div className='flex justify-center text-center'>
         <div className='border-4 border-solid border-gray-600 rounded-md p-6 w-1/3'>
-          {!address ? (
-            <p>Please connect your wallet</p>
-          ) : asset?.storage?.ipfs?.cid ? (
+          {address ? (
             <div>
-              <div className={styles.player}>
-                <Player playbackId={asset?.storage?.ipfs?.cid} />
-              </div>
-              <div className='overflow-scroll border-4 border-solid border-gray-600 rounded-md p-6 mb-4'>
-                <p className='text-left text-blue-600'>CID: {asset?.storage?.ipfs?.cid}</p>
-                <p className='text-left text-blue-600'>URL: {asset?.storage?.ipfs?.url}</p>
-                <p className='text-left text-blue-600'>
-                  Gateway URL: {asset?.storage?.ipfs?.gatewayUrl}
-                </p>
+              {asset?.status?.phase !== 'ready' && (
+                <div className={styles.drop} {...getRootProps()}>
+                  <input {...getInputProps()} />
+                  <div>
+                    <p className='text-center'>
+                      Drag and drop or <span>browse files</span>
+                    </p>
+                  </div>
                 </div>
-              <div>
-                {contractWriteData?.hash && isSuccess ? (
-                  <a
-                  target='_blank'
-                  href={`https://mumbai.polygonscan.com/tx/${contractWriteData.hash}`}
-                  rel='noreferrer'
-                  >
-                    <button className=' bg-blue-600 rounded p-3 text-white hover:text-gray-800'>
-                      View Mint Transaction
-                    </button>
-                  </a>
-                ) : contractWriteError ? (
-                  <p>{contractWriteError.message}</p>
-                  ) : (
-                    <></>
+              )}
+
+              {asset?.storage?.ipfs?.cid ? (
+                <div className='flex flex-col justify-center'>
+                  <div className={styles.player}>
+                    <Player playbackId={asset?.storage?.ipfs?.cid} />
+                  </div>
+                  <div className='overflow-scroll border-4 border-solid border-gray-600 rounded-md p-6 mb-4 mt-5 w-500px'>
+                    <p className='text-left text-blue-600'>CID: {asset?.storage?.ipfs?.cid}</p>
+                    <p className='text-left text-blue-600'>URL: {asset?.storage?.ipfs?.url}</p>
+                    <p className='text-left text-blue-600'>
+                      Gateway URL: {asset?.storage?.ipfs?.gatewayUrl}
+                    </p>
+                  </div>
+                  <div>
+                    {contractWriteData?.hash && isSuccess ? (
+                      <a
+                        target='_blank'
+                        href={`https://mumbai.polygonscan.com/tx/${contractWriteData.hash}`}
+                        rel='noreferrer'
+                      >
+                        <button className=' bg-blue-600 rounded p-3 text-white hover:text-gray-800'>
+                          View Mint Transaction
+                        </button>
+                      </a>
+                    ) : contractWriteError ? (
+                      <p>{contractWriteError.message}</p>
+                    ) : (
+                      <></>
                     )}
-              </div>
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <div>
+                    {isUploadingToIPFS && (
+                      <p className='text-white '>
+                        Uploading to IPFS
+                        <span>
+                          <br />
+                          <PulseLoader size={7} color='#245cd8' />
+                        </span>
+                      </p>
+                    )}
+                  </div>
+                  <div className={styles.progress}>
+                    {video ? (
+                      <p>{progressFormatted}</p>
+                    ) : asset?.storage?.status ? (
+                      <p>{asset?.storage?.status?.progress}</p>
+                    ) : (
+                      <p>Select a video file to upload.</p>
+                    )}
+                  </div>
+                  <div className={styles.form}>
+                    <label htmlFor='asset-name' className='text-left'>
+                      Name:{' '}
+                    </label>
+                    <input
+                      className='rounded mt-3'
+                      type='text'
+                      value={assetName}
+                      name='asset-name'
+                      required
+                      disabled={disabled}
+                      onChange={(e) => setAssetName(e.target.value)}
+                    />
+                    <label htmlFor='external-link' className='text-left'>
+                      External Link:{' '}
+                    </label>
+                    <input
+                      className='rounded mt-3'
+                      type='text'
+                      value={externalLink}
+                      name='external-link'
+                      disabled={disabled}
+                      onChange={(e) => setExternalLink(e.target.value)}
+                    />
+                    <label htmlFor='description' className='text-left'>
+                      Description:{' '}
+                    </label>
+                    <textarea
+                      className='rounded mt-3'
+                      value={description}
+                      name='description'
+                      disabled={disabled}
+                      onChange={(e) => setDescription(e.target.value)}
+                    />
+                    <label htmlFor='supply' className='text-left'>
+                      Supply Amount:{' '}
+                    </label>
+                    <input
+                      className='w-12 rounded mt-3'
+                      type='number'
+                      value={supply}
+                      name='supply-amount'
+                      disabled={disabled}
+                      onChange={(e) => setSupply(Number(e.target.value))}
+                    />
+                  </div>
+                  {/* Upload Asset */}
+                  <div className='flex justify-center'>
+                    {asset?.status?.phase !== 'ready' ? (
+                      <button
+                        className=' bg-blue-600 rounded p-3'
+                        onClick={() => {
+                          if (video) {
+                            setDisabled(true), createAsset?.();
+                          }
+                        }}
+                        disabled={!video || isLoading || Boolean(asset)}
+                      >
+                        Mint NFT
+                        <br />
+                        {isLoading && <BarLoader color='#fff' />}
+                      </button>
+                    ) : (
+                      <></>
+                    )}
+                  </div>
+                </>
+              )}
             </div>
           ) : (
-            address && (
-              <div>
-                {asset?.status?.phase !== 'ready' ? (
-                  <div className={styles.drop} {...getRootProps()}>
-                    <input {...getInputProps()} />
-                    <div>
-                      <p className='text-center'>
-                        Drag and drop or <span>browse files</span>
-                      </p>
-                    </div>
-                  </div>
-                ) : (
-                  <></>
-                )}
-
-                {/* Display Upload Progress */}
-                <div className={styles.progress}>
-                  {video ? (
-                    <p>{progressFormatted}</p>
-                  ) : asset?.storage?.status ? (
-                    <p>{asset?.storage?.status?.progress}</p>
-                  ) : (
-                    <p>Select a video file to upload.</p>
-                  )}
-                </div>
-                <div className={styles.form}>
-                  <label htmlFor='asset-name' className='text-left'>
-                    Name:{' '}
-                  </label>
-                  <input
-                    className='rounded mt-3'
-                    type='text'
-                    value={assetName}
-                    name='asset-name'
-                    required
-                    disabled={disabled}
-                    onChange={(e) => setAssetName(e.target.value)}
-                  />
-                  <label htmlFor='external-link' className='text-left'>
-                    External Link:{' '}
-                  </label>
-                  <input
-                    className='rounded mt-3'
-                    type='text'
-                    value={externalLink}
-                    name='external-link'
-                    disabled={disabled}
-                    onChange={(e) => setExternalLink(e.target.value)}
-                  />
-                  <label htmlFor='description' className='text-left'>
-                    Description:{' '}
-                  </label>
-                  <textarea
-                    className='rounded mt-3'
-                    value={description}
-                    name='description'
-                    disabled={disabled}
-                    onChange={(e) => setDescription(e.target.value)}
-                  />
-                  <label htmlFor='supply' className='text-left'>
-                    Supply Amount:{' '}
-                  </label>
-                  <input
-                    className='w-12 rounded mt-3'
-                    type='number'
-                    value={supply}
-                    name='supply-amount'
-                    disabled={disabled}
-                    onChange={(e) => setSupply(Number(e.target.value))}
-                  />
-                </div>
-                {/* Upload Asset */}
-                <div className='flex justify-center'>
-                  {asset?.status?.phase !== 'ready' ? (
-                    <button
-                      className=' bg-blue-600 rounded p-3'
-                      onClick={() => {
-                        if (video) {
-                          setDisabled(true), createAsset?.();
-                        }
-                      }}
-                      disabled={!video || isLoading || Boolean(asset)}
-                    >
-                      Mint NFT
-                      <br />
-                      {isLoading && <BarLoader color='#fff' />}
-                    </button>
-                  ) : (
-                    <></>
-                  )}
-                </div>
-              </div>
-            )
+            <p>Please connect your wallet</p>
           )}
         </div>
       </div>
