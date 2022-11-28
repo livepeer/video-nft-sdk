@@ -156,7 +156,7 @@ export default function Home() {
       {/* Wallet Connect Button */}
       <div className='flex justify-between mt-10'>
         <Link href='https://www.livepeer.studio'>
-          <Image src='/livepeer-logo.png' alt='Livepeer logo' width={180} height={50}></Image>
+          <Image src='/studio-logo.png' alt='Livepeer logo' width={180} height={50}></Image>
         </Link>
         <ConnectButton />
       </div>
@@ -188,7 +188,7 @@ export default function Home() {
         <h1 className={styles.title}>Livepeer Studio Mint Video NFT</h1>
       </div>
       <div className='flex justify-center text-center'>
-        <div className='border-4 border-solid border-gray-600 rounded-md p-6 w-1/3'>
+        <div className='border-4 border-solid border-gray-600 rounded-md p-6 w-3/5'>
           {address ? (
             <div>
               {asset?.status?.phase !== 'ready' && (
@@ -203,11 +203,11 @@ export default function Home() {
               )}
 
               {asset?.storage?.ipfs?.cid ? (
-                <div className='flex flex-col justify-center'>
+                <div className='flex flex-col justify-center ml-5'>
                   <div className={styles.player}>
                     <Player playbackId={asset?.storage?.ipfs?.cid} />
                   </div>
-                  <div className='overflow-scroll border-4 border-solid border-gray-600 rounded-md p-6 mb-4 mt-5 w-500px'>
+                  <div className='overflow-scroll border-4 border-solid border-gray-600 rounded-md p-6 mb-4 mt-5'>
                     <p className='text-left text-blue-600'>CID: {asset?.storage?.ipfs?.cid}</p>
                     <p className='text-left text-blue-600'>URL: {asset?.storage?.ipfs?.url}</p>
                     <p className='text-left text-blue-600'>
