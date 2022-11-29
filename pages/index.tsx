@@ -157,7 +157,7 @@ export default function Home() {
       {/* Wallet Connect Button */}
       <div className='flex justify-between mt-10'>
         <Link href='https://www.livepeer.studio'>
-          <Image src='/studio-logo.png' alt='Livepeer logo' width={180} height={50}></Image>
+          <Image src='/studio-logo.png' alt='Livepeer logo' width={180} height={50} />
         </Link>
         <ConnectButton />
       </div>
@@ -185,7 +185,7 @@ export default function Home() {
       </div>
       {/* Main page */}
         <div className='flex justify-center'>
-          <Image src='/titleImage.png' alt='title image' width={1000} height={500}></Image>
+          <Image src='/titleImage.png' alt='title image' width={1000} height={500} />
       </div>
       <div className='flex justify-center text-center'>
         <div className='overflow-auto border border-solid border-blue-600 rounded-md p-6 w-3/5'>
