@@ -184,10 +184,10 @@ export default function Home() {
           Support
         </Link>
         {/* </div> */}
-      </div> 
+      </div>
       {/* Main page */}
-      <div className={styles.main}>
-          <Image src='/titleImage.png' alt='page title' width={600} height={20} />
+      <div className='flex justify-center'>
+        <Image src='/titleImage.png' alt='title image' width={1000} height={500} />
       </div>
       <div className='flex justify-center text-center'>
         <div className='overflow-auto border border-solid border-blue-600 rounded-md p-6 w-3/5'>
