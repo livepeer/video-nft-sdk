@@ -183,8 +183,7 @@ export default function Home() {
           Support
         </Link>
         {/* </div> */}
-      </div>
-
+      </div> 
       {/* Main page */}
       <div className={styles.main}>
         <div>
