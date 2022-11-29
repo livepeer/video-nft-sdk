@@ -162,19 +162,27 @@ export default function Home() {
       </div>
 
       {/* Social */}
-      <div className='flex mt-6 ml-4'>
-        <div className='mr-10'>
-          <Link href='https://discord.com/channels/423160867534929930/1044996697090162698'>
-            <Image
-              className='ml-2'
-              src='/icons8-discord-48.png'
-              alt='Discord logo'
-              width={40}
-              height={40}
-            />
-          </Link>
-          <p className='text-blue-600'>Support</p>
-        </div>
+      <div className='flex mt-6 ml-2'>
+        {/* <div className='mr-10'> */}
+        <Link
+          href='https://discord.com/channels/423160867534929930/1044996697090162698'
+          className='text-blue-600 mr-2 text-lg hover:text-white'
+        >
+          Tutorials
+        </Link>
+        <Link
+          href='https://discord.com/channels/423160867534929930/1044996697090162698'
+          className='text-blue-600 mr-2 text-lg hover:text-white'
+        >
+          FAQs
+        </Link>
+        <Link
+          href='https://discord.com/channels/423160867534929930/1044996697090162698'
+          className='text-blue-600 text-lg hover:text-white'
+        >
+          Support
+        </Link>
+        {/* </div> */}
       </div>
 
       {/* Main page */}
