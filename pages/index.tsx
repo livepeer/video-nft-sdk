@@ -205,7 +205,7 @@ export default function Home() {
 
               {asset?.storage?.ipfs?.cid ? (
                 <div className='flex flex-col justify-center items-center ml-5'>
-                  <div className='border border-solid border-blue-600 rounded-md p-6 mb-4 mt-5'>
+                  <div className='border border-solid border-blue-600 rounded-md p-6 mb-4 mt-5 w-3/4'>
                     <Player playbackId={asset?.storage?.ipfs?.cid} />
                   </div>
                   <div className='items-center'>
@@ -241,7 +241,7 @@ export default function Home() {
                       <></>
                     )}
                   </div>
-                  <div className='border border-solid border-blue-600 rounded-md p-6 mb-4 mt-5'>
+                  <div className='border border-solid border-blue-600 rounded-md p-6 mb-4 mt-5 w-3/4'>
                     <p className='text-left text-blue-600'>CID: {asset?.storage?.ipfs?.cid}</p>
                     <p className='text-left text-blue-600'>URL: {asset?.storage?.ipfs?.url}</p>
                     <p className='text-left text-blue-600'>
