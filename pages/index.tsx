@@ -164,7 +164,6 @@ export default function Home() {
 
       {/* Social */}
       <div className='flex mt-6 ml-2'>
-        {/* <div className='mr-10'> */}
         <Link
           href='https://discord.com/channels/423160867534929930/1044996697090162698'
           className='text-blue-600 mr-2 text-lg hover:text-white'
@@ -183,11 +182,12 @@ export default function Home() {
         >
           Support
         </Link>
-        {/* </div> */}
       </div>
       {/* Main page */}
       <div className='flex justify-center'>
-        <Image src='/titleImage.png' alt='title image' width={1000} height={500} />
+        <Link href='https://livepeer.studio/'>
+          <Image src='/titleImage.png' alt='title image' width={1000} height={500} />
+        </Link>
       </div>
       <div className='flex justify-center text-center'>
         <div className='overflow-auto border border-solid border-blue-600 rounded-md p-6 w-3/5'>
