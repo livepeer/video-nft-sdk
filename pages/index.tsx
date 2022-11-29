@@ -6,6 +6,7 @@ import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { useDropzone } from 'react-dropzone';
 import BarLoader from 'react-spinners/BarLoader';
 import PulseLoader from 'react-spinners/PulseLoader';
+import title from '../public/title.png'
 import { useAccount, useContractWrite, usePrepareContractWrite } from 'wagmi';
 import styles from '../styles/MintNFT.module.css';
 import Link from 'next/link';
@@ -180,7 +181,7 @@ export default function Home() {
       {/* Main page */}
       <div className={styles.main}>
         <div>
-          <Image src='/title.png' alt='page title' width={600} height={20} />
+          <Image src={title} alt='page title' width={600} height={20} />
         </div>
       </div>
       <div className='flex justify-center text-center'>
