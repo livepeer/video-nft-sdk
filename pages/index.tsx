@@ -9,7 +9,7 @@ import PulseLoader from 'react-spinners/PulseLoader';
 import { useAccount, useContractWrite, usePrepareContractWrite } from 'wagmi';
 import styles from '../styles/MintNFT.module.css';
 import Link from 'next/link';
-import titleImage from '../public/titleImage.png'
+import titleImage from './../public/titleImage.png'
 
 
 
