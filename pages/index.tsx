@@ -187,7 +187,7 @@ export default function Home() {
       {/* Main page */}
       <div className={styles.main}>
         <div>
-          <Image src='/title.png' alt='page title' width={600} height={20} />
+          <Image src='/titleImage.png' alt='page title' width={600} height={20} />
         </div>
       </div>
       <div className='flex justify-center text-center'>
