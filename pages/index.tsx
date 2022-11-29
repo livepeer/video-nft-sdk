@@ -182,11 +182,14 @@ export default function Home() {
         >
           Support
         </Link>
+        <div >
+          <Image src='/titleImage.png' alt='title image' width={1000} height={500} />
+        </div>
       </div>
       {/* Main page */}
-        <div className='flex justify-center'>
+      {/* <div className='flex justify-center'>
           <Image src='/titleImage.png' alt='title image' width={1000} height={500} />
-      </div>
+      </div> */}
       <div className='flex justify-center text-center'>
         <div className='overflow-auto border border-solid border-blue-600 rounded-md p-6 w-3/5'>
           {address ? (
