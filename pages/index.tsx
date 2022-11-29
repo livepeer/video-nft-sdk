@@ -10,17 +10,17 @@ import { useAccount, useContractWrite, usePrepareContractWrite } from 'wagmi';
 import styles from '../styles/MintNFT.module.css';
 import Link from 'next/link';
 
+
 import { videoNftAbi } from '../components/videoNftAbi';
 
 export default function Home() {
   const [video, setVideo] = useState<File | null>(null);
   const [assetName, setAssetName] = useState<string>('');
   const [disabled, setDisabled] = useState<boolean>(false);
-  const [externalLink, setExternalLink] = useState<string>();
   const [description, setDescription] = useState<string>();
-  const [supply, setSupply] = useState<number>();
   const [isWriteInProgress, setIsWriteInProgress] = useState<boolean>();
-  const [isUpdateAsset, setIsUpdateAsset] = useState<boolean>();
+  const [ isUpdateAsset, setIsUpdateAsset ] = useState<boolean>();
+  const [ isFileSelected, setIsFileSelected ] = useState<boolean>(false);
   const [isUploadingToIPFS, setIsUploadingToIPFS] = useState<boolean>(false);
   const { address } = useAccount();
 
@@ -41,7 +41,8 @@ export default function Home() {
 
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
     if (acceptedFiles && acceptedFiles.length > 0 && acceptedFiles?.[0]) {
-      setVideo(acceptedFiles[0]);
+      setVideo( acceptedFiles[ 0 ] );
+      setIsFileSelected( true );
     }
   }, []);
 
@@ -70,9 +71,7 @@ export default function Home() {
           storage: {
             ipfs: true,
             metadata: {
-              externalLink,
               description,
-              supply,
             },
           },
         }
@@ -129,7 +128,8 @@ export default function Home() {
   // Runs after an asset is created
   useEffect(() => {
     if (!isUpdateAsset && updateAsset && updateStatus === 'idle') {
-      setIsUploadingToIPFS(true);
+      setIsUploadingToIPFS( true );
+      setIsFileSelected(false)
       // console.log('updateAsset', updateStatus);
       setIsUpdateAsset(true);
       updateAsset();
@@ -149,7 +149,7 @@ export default function Home() {
     <div className={styles.container}>
       <Head>
         <title>Livepeer Sample App</title>
-        <meta name='description' content='Livepeer Studio Sample App' />
+        <meta name='description' content='Livepeer Studio Mint NFT App' />
         <link rel='icon' href='/favicon.ico' />
       </Head>
 
@@ -164,7 +164,7 @@ export default function Home() {
       {/* Social */}
       <div className='flex mt-6 ml-4'>
         <div className='mr-10'>
-          <Link href='https://discord.com/channels/423160867534929930/821523349292711946'>
+          <Link href='https://discord.com/channels/423160867534929930/1044996697090162698'>
             <Image
               className='ml-2'
               src='/icons8-discord-48.png'
@@ -175,20 +175,16 @@ export default function Home() {
           </Link>
           <p className='text-blue-600'>Support</p>
         </div>
-        <div>
-          <Link href='https://twitter.com/intent/tweet?text=Video%20NFT%20created%20on%20Livepeer%20Studio%20app'>
-            <Image src='/icons8-twitter-48.png' alt='Twitter logo' width={40} height={40} />
-          </Link>
-          <p className='text-blue-600'>Share</p>
-        </div>
       </div>
 
       {/* Main page */}
       <div className={styles.main}>
-        <h1 className={styles.title}>Livepeer Studio Mint Video NFT</h1>
+        <div>
+          <Image src='/Title.png' alt='page title' width={600} height={20} />
+        </div>
       </div>
       <div className='flex justify-center text-center'>
-        <div className='border-4 border-solid border-gray-600 rounded-md p-6 w-3/5'>
+        <div className='overflow-auto border border-solid border-blue-600 rounded-md p-6 w-3/5'>
           {address ? (
             <div>
               {asset?.status?.phase !== 'ready' && (
@@ -203,41 +199,57 @@ export default function Home() {
               )}
 
               {asset?.storage?.ipfs?.cid ? (
-                <div className='flex flex-col justify-center ml-5'>
-                  <div className={styles.player}>
+                <div className='flex flex-col justify-center items-center ml-5'>
+                  <div className='border border-solid border-blue-600 rounded-md p-6 mb-4 mt-5'>
                     <Player playbackId={asset?.storage?.ipfs?.cid} />
                   </div>
-                  <div className='overflow-scroll border-4 border-solid border-gray-600 rounded-md p-6 mb-4 mt-5'>
-                    <p className='text-left text-blue-600'>CID: {asset?.storage?.ipfs?.cid}</p>
-                    <p className='text-left text-blue-600'>URL: {asset?.storage?.ipfs?.url}</p>
-                    <p className='text-left text-blue-600'>
-                      Gateway URL: {asset?.storage?.ipfs?.gatewayUrl}
-                    </p>
-                  </div>
-                  <div>
+                  <div className='items-center'>
                     {contractWriteData?.hash && isSuccess ? (
-                      <a
-                        target='_blank'
-                        href={`https://mumbai.polygonscan.com/tx/${contractWriteData.hash}`}
-                        rel='noreferrer'
-                      >
-                        <button className=' bg-blue-600 rounded p-3 text-white hover:text-gray-800'>
-                          View Mint Transaction
-                        </button>
-                      </a>
+                      <div className='flex'>
+                        <a
+                          target='_blank'
+                          href={`https://mumbai.polygonscan.com/tx/${contractWriteData.hash}`}
+                          rel='noreferrer'
+                        >
+                          <button className=' bg-blue-600 rounded p-3 text-white hover:text-gray-800 mt-5 mr-5'>
+                            View Transaction
+                          </button>
+                        </a>
+
+                        <a href='https://twitter.com/intent/tweet?text=Video%20NFT%20created%20on%20Livepeer%20Studio%20app'>
+                          <button className=' bg-blue-600 rounded p-3 pb-2 text-white hover:text-gray-800 mt-5'>
+                            <span className='flex'>
+                              <Image
+                                src='/icons8-twitter-48.png'
+                                alt='Twitter logo'
+                                width={30}
+                                height={10}
+                              />
+                              Share
+                            </span>{' '}
+                          </button>
+                        </a>
+                      </div>
                     ) : contractWriteError ? (
                       <p>{contractWriteError.message}</p>
                     ) : (
                       <></>
                     )}
                   </div>
+                  <div className='border border-solid border-blue-600 rounded-md p-6 mb-4 mt-5'>
+                    <p className='text-left text-blue-600'>CID: {asset?.storage?.ipfs?.cid}</p>
+                    <p className='text-left text-blue-600'>URL: {asset?.storage?.ipfs?.url}</p>
+                    <p className='text-left text-blue-600'>
+                      Gateway URL: {asset?.storage?.ipfs?.gatewayUrl}
+                    </p>
+                  </div>
                 </div>
               ) : (
                 <>
                   <div>
                     {isUploadingToIPFS && (
-                      <p className='text-white '>
-                        Uploading to IPFS
+                      <p className='text-2xl text-indigo-500'>
+                        Storing to IPFS
                         <span>
                           <br />
                           <PulseLoader size={7} color='#245cd8' />
@@ -246,10 +258,13 @@ export default function Home() {
                     )}
                   </div>
                   <div className={styles.progress}>
+                    {video && isFileSelected && (
+                      <p className='text-2xl text-yellow-600'>File Selected</p>
+                    )}
                     {video ? (
-                      <p>{progressFormatted}</p>
+                      <p className='text-xl text-cyan-400'>{progressFormatted}</p>
                     ) : asset?.storage?.status ? (
-                      <p>{asset?.storage?.status?.progress}</p>
+                      <p className='text-xl text-green-300'>{asset?.storage?.status?.progress}</p>
                     ) : (
                       <p>Select a video file to upload.</p>
                     )}
@@ -259,7 +274,7 @@ export default function Home() {
                       Name:{' '}
                     </label>
                     <input
-                      className='rounded mt-3'
+                      className='rounded bg-slate-700'
                       type='text'
                       value={assetName}
                       name='asset-name'
@@ -267,37 +282,16 @@ export default function Home() {
                       disabled={disabled}
                       onChange={(e) => setAssetName(e.target.value)}
                     />
-                    <label htmlFor='external-link' className='text-left'>
-                      External Link:{' '}
-                    </label>
-                    <input
-                      className='rounded mt-3'
-                      type='text'
-                      value={externalLink}
-                      name='external-link'
-                      disabled={disabled}
-                      onChange={(e) => setExternalLink(e.target.value)}
-                    />
+                    <br />
                     <label htmlFor='description' className='text-left'>
                       Description:{' '}
                     </label>
                     <textarea
-                      className='rounded mt-3'
+                      className='rounded bg-slate-700 mb-5'
                       value={description}
                       name='description'
                       disabled={disabled}
                       onChange={(e) => setDescription(e.target.value)}
-                    />
-                    <label htmlFor='supply' className='text-left'>
-                      Supply Amount:{' '}
-                    </label>
-                    <input
-                      className='w-12 rounded mt-3'
-                      type='number'
-                      value={supply}
-                      name='supply-amount'
-                      disabled={disabled}
-                      onChange={(e) => setSupply(Number(e.target.value))}
                     />
                   </div>
                   {/* Upload Asset */}
@@ -312,7 +306,7 @@ export default function Home() {
                         }}
                         disabled={!video || isLoading || Boolean(asset)}
                       >
-                        Mint NFT
+                        Create NFT
                         <br />
                         {isLoading && <BarLoader color='#fff' />}
                       </button>
