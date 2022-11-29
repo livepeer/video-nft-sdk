@@ -164,7 +164,7 @@ border-radius: 5px;
 .icon {
   margin: 1rem;
   display: flex;
-  justify-content: start;
+  justify-content: flex-start;
 }
 
 .icon p {
