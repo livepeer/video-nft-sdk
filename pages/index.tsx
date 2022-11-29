@@ -9,6 +9,7 @@ import PulseLoader from 'react-spinners/PulseLoader';
 import { useAccount, useContractWrite, usePrepareContractWrite } from 'wagmi';
 import styles from '../styles/MintNFT.module.css';
 import Link from 'next/link';
+import titleImage from '../assets/titleImage.png'
 
 
 
@@ -185,7 +186,7 @@ export default function Home() {
       </div>
       {/* Main page */}
       <div className='flex justify-center'>
-          <Image src='/titleImage.png' priority alt='title image' width={1000} height={500} />
+        <Image src={titleImage} alt='title image' width={1000} height={500} priority />
       </div>
       <div className='flex justify-center text-center'>
         <div className='overflow-auto border border-solid border-blue-600 rounded-md p-6 w-3/5'>
