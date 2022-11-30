@@ -348,6 +348,7 @@ module.exports = {
     },
     fontFamily: {
       sans: [
+        'Matter',
         'ui-sans-serif',
         'system-ui',
         '-apple-system',
@@ -930,6 +931,11 @@ module.exports = {
       30: '30',
       40: '40',
       50: '50',
+    },
+    extend: {
+      fontFamily: {
+        matter: ['Matter'],
+      },
     },
   },
   variantOrder: [

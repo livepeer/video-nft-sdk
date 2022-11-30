@@ -24,6 +24,7 @@ export default function Home() {
   const [ isUpdateAsset, setIsUpdateAsset ] = useState<boolean>();
   const [ isFileSelected, setIsFileSelected ] = useState<boolean>(false);
   const [isUploadingToIPFS, setIsUploadingToIPFS] = useState<boolean>(false);
+  const [isProcessing, setIsProcessing] = useState<boolean>(false);
   const { address } = useAccount();
 
   // Creating an asset
@@ -87,13 +88,15 @@ export default function Home() {
         : progress?.[0].phase === 'waiting'
         ? 'Waiting'
         : progress?.[0].phase === 'uploading'
-        ? `Uploading: ${Math.round(progress?.[0]?.progress * 100)}%`
+            ? `Video Uploading: ${Math.round( progress?.[ 0 ]?.progress * 100 )}%`
         : progress?.[0].phase === 'processing'
-        ? `Processing: ${Math.round(progress?.[0].progress * 100)}%`
-        : null,
+              ? `File Uploaded ✅               
+              Video Processing: ${Math.round( progress?.[ 0 ].progress * 100 )}%`
+        :null,
     [progress]
   );
 
+  
   const { config } = usePrepareContractWrite({
     // The demo NFT contract address on Polygon Mumbai
     address: '0xA4E1d8FE768d471B048F9d73ff90ED8fcCC03643',
@@ -133,7 +136,8 @@ export default function Home() {
       setIsUploadingToIPFS( true );
       setIsFileSelected(false)
       // console.log('updateAsset', updateStatus);
-      setIsUpdateAsset(true);
+      setIsUpdateAsset( true );
+      setIsProcessing(true)
       updateAsset();
     }
   }, [updateAsset, updateStatus, isUpdateAsset]);
@@ -150,7 +154,7 @@ export default function Home() {
   return (
     <div className={styles.container}>
       <Head>
-        <title>Livepeer Sample App</title>
+        <title>Livepeer Video NFT Sample App</title>
         <meta name='description' content='Livepeer Studio Mint NFT App' />
         <link rel='icon' href='/favicon.ico' />
       </Head>
@@ -164,31 +168,31 @@ export default function Home() {
       </div>
 
       {/* Social */}
-      <div className='flex mt-6 ml-2'>
+      <div className='flex flex-col mt-6 ml-2 font-matter'>
         <Link
           href='https://discord.com/channels/423160867534929930/1044996697090162698'
-          className='text-blue-600 mr-2 text-lg hover:text-white'
+          className='text-white mr-2 text-lg hover:text-blue-600'
         >
           Tutorials
         </Link>
         <Link
           href='https://discord.com/channels/423160867534929930/1044996697090162698'
-          className='text-blue-600 mr-2 text-lg hover:text-white'
+          className='text-white mr-2 text-lg hover:text-blue-600'
         >
           FAQs
         </Link>
         <Link
           href='https://discord.com/channels/423160867534929930/1044996697090162698'
-          className='text-blue-600 text-lg hover:text-white'
+          className='text-white text-lg hover:text-blue-600'
         >
           Support
         </Link>
       </div>
       {/* Main page */}
-      <div className='flex justify-center'>
-        <Image src={titleImage} alt='title image' width={1000} height={500} priority />
+      <div className='flex justify-center mt-8'>
+        <Image src={titleImage} alt='title image' width={700} height={200} priority />
       </div>
-      <div className='flex justify-center text-center'>
+      <div className='flex justify-center text-center font-matter'>
         <div className='overflow-auto border border-solid border-blue-600 rounded-md p-6 w-3/5'>
           {address ? (
             <div>
@@ -204,57 +208,59 @@ export default function Home() {
               )}
 
               {asset?.storage?.ipfs?.cid ? (
-                <div className='flex flex-col justify-center items-center ml-5'>
-                  <div className='border border-solid border-blue-600 rounded-md p-6 mb-4 mt-5 w-3/4'>
-                    <Player playbackId={asset?.storage?.ipfs?.cid} />
-                  </div>
-                  <div className='items-center'>
-                    {contractWriteData?.hash && isSuccess ? (
-                      <div className='flex'>
-                        <a
-                          target='_blank'
-                          href={`https://mumbai.polygonscan.com/tx/${contractWriteData.hash}`}
-                          rel='noreferrer'
-                        >
-                          <button className=' bg-blue-600 rounded p-3 text-white hover:text-gray-800 mt-5 mr-5'>
-                            View Transaction
-                          </button>
-                        </a>
+                <div>
+                  <div className='flex flex-col justify-center items-center ml-5'>
+                    <div className='border border-solid border-blue-600 rounded-md p-6 mb-4 mt-5 w-3/4'>
+                      <Player playbackId={asset?.storage?.ipfs?.cid} />
+                    </div>
+                    <div className='items-center'>
+                      {contractWriteData?.hash && isSuccess ? (
+                        <div className='flex font-matter'>
+                          <a
+                            target='_blank'
+                            href={`https://mumbai.polygonscan.com/tx/${contractWriteData.hash}`}
+                            rel='noreferrer'
+                          >
+                            <button className=' hover:text-blue-600 rounded p-5 bg-slate-800 outline outline-offset-2 outline-slate-800 outline-2 shadow-md mr-5'>
+                              View Transaction
+                            </button>
+                          </a>
 
-                        <a href='https://twitter.com/intent/tweet?text=Video%20NFT%20created%20on%20Livepeer%20Studio%20app'>
-                          <button className=' bg-blue-600 rounded p-3 pb-2 text-white hover:text-gray-800 mt-5'>
-                            <span className='flex'>
-                              <Image
-                                src='/icons8-twitter-48.png'
-                                alt='Twitter logo'
-                                width={30}
-                                height={10}
-                              />
-                              Share
-                            </span>{' '}
-                          </button>
-                        </a>
-                      </div>
-                    ) : contractWriteError ? (
-                      <p>{contractWriteError.message}</p>
-                    ) : (
-                      <></>
-                    )}
-                  </div>
-                  <div className='border border-solid border-blue-600 rounded-md p-6 mb-4 mt-5 w-3/4'>
-                    <p className='text-left text-blue-600'>CID: {asset?.storage?.ipfs?.cid}</p>
-                    <p className='text-left text-blue-600'>URL: {asset?.storage?.ipfs?.url}</p>
-                    <p className='text-left text-blue-600'>
-                      Gateway URL: {asset?.storage?.ipfs?.gatewayUrl}
-                    </p>
+                          <a href='https://twitter.com/intent/tweet?text=Video%20NFT%20created%20on%20Livepeer%20Studio%20app'>
+                            <button className=' hover:text-blue-600 rounded p-5 pb-3.5 bg-slate-800 outline outline-offset-2 outline-slate-800 outline-2 shadow-md ml-5'>
+                              <span className='flex'>
+                                <Image
+                                  src='/icons8-twitter-48.png'
+                                  alt='Twitter logo'
+                                  width={30}
+                                  height={10}
+                                />
+                                Share
+                              </span>{' '}
+                            </button>
+                          </a>
+                        </div>
+                      ) : contractWriteError ? (
+                        <p>{contractWriteError.message}</p>
+                      ) : (
+                        <></>
+                      )}
+                    </div>
+                    <div className='border border-solid border-blue-600 rounded-md p-6 mb-4 mt-5 w-3/4 overflow-x-auto font-matter'>
+                      <p className='text-left text-blue-600'>CID: {asset?.storage?.ipfs?.cid}</p>
+                      <p className='text-left text-blue-600'>URL: {asset?.storage?.ipfs?.url}</p>
+                      <p className='text-left text-blue-600'>
+                        Gateway URL: {asset?.storage?.ipfs?.gatewayUrl}
+                      </p>
+                    </div>
                   </div>
                 </div>
               ) : (
                 <>
                   <div>
                     {isUploadingToIPFS && (
-                      <p className='text-2xl text-indigo-500'>
-                        Storing to IPFS
+                      <p className='text-2xl text-indigo-500 font-matter'>
+                        Storing on IPFS
                         <span>
                           <br />
                           <PulseLoader size={7} color='#245cd8' />
@@ -264,37 +270,43 @@ export default function Home() {
                   </div>
                   <div className={styles.progress}>
                     {video && isFileSelected && (
-                      <p className='text-2xl text-yellow-600'>File Selected</p>
+                      <p className='text-xl text-yellow-600 font-matter'>File Selected ✅</p>
                     )}
                     {video ? (
-                      <p className='text-xl text-cyan-400'>{progressFormatted}</p>
+                      <p className='text-xl text-yellow-600 font-matter whitespace-pre-line'>
+                        {progressFormatted}
+                      </p>
                     ) : asset?.storage?.status ? (
-                      <p className='text-xl text-green-300'>{asset?.storage?.status?.progress}</p>
+                      <p className='text-xl text-green-300 font-matter'>
+                        {asset?.storage?.status?.progress}
+                      </p>
                     ) : (
                       <p>Select a video file to upload.</p>
                     )}
                   </div>
                   <div className={styles.form}>
-                    <label htmlFor='asset-name' className='text-left'>
+                    <label htmlFor='asset-name' className='text-left font-matter'>
                       Name:{' '}
                     </label>
                     <input
-                      className='rounded bg-slate-700'
+                      className='rounded bg-slate-700 p-1 font-matter'
                       type='text'
                       value={assetName}
                       name='asset-name'
                       required
+                      placeholder='Name of NFT'
                       disabled={disabled}
                       onChange={(e) => setAssetName(e.target.value)}
                     />
                     <br />
-                    <label htmlFor='description' className='text-left'>
+                    <label htmlFor='description' className='text-left font-matter'>
                       Description:{' '}
                     </label>
                     <textarea
-                      className='rounded bg-slate-700 mb-5'
+                      className='rounded bg-slate-700 mb-5 p-1 font-matter'
                       value={description}
                       name='description'
+                      placeholder='Description of NFT'
                       disabled={disabled}
                       onChange={(e) => setDescription(e.target.value)}
                     />
@@ -303,7 +315,7 @@ export default function Home() {
                   <div className='flex justify-center'>
                     {asset?.status?.phase !== 'ready' ? (
                       <button
-                        className=' bg-blue-600 rounded p-3'
+                        className=' hover:text-blue-600 rounded p-5 bg-slate-800 outline outline-offset-2 outline-slate-800 outline-2 shadow-md font-matter'
                         onClick={() => {
                           if (video) {
                             setDisabled(true), createAsset?.();
