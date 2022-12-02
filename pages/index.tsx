@@ -164,36 +164,37 @@ export default function Home() {
 
       {/* Wallet Connect Button */}
       <div className='flex justify-between mt-10'>
-        <Link href='https://www.livepeer.studio'>
-          <Image src='/studio-logo.png' alt='Livepeer logo' width={180} height={50} />
-        </Link>
+        <div className='ml-2 font-matter'>
+          <Link
+            href='https://discord.com/channels/423160867534929930/1044996697090162698'
+            className='text-white mr-4 text-lg hover:text-blue-600 w-16'
+          >
+            Tutorials
+          </Link>
+          <Link
+            href='https://discord.com/channels/423160867534929930/1044996697090162698'
+            className='text-white mr-4 text-lg hover:text-blue-600 w-16'
+          >
+            FAQs
+          </Link>
+          <Link
+            href='https://discord.com/channels/423160867534929930/1044996697090162698'
+            className='text-white text-lg hover:text-blue-600 w-16'
+          >
+            Support
+          </Link>
+        </div>
         <ConnectButton />
       </div>
 
       {/* Social */}
-      <div className='flex flex-col mt-6 ml-2 font-matter'>
-        <Link
-          href='https://discord.com/channels/423160867534929930/1044996697090162698'
-          className='text-white mr-2 text-lg hover:text-blue-600 w-16'
-        >
-          Tutorials
-        </Link>
-        <Link
-          href='https://discord.com/channels/423160867534929930/1044996697090162698'
-          className='text-white mr-2 text-lg hover:text-blue-600 w-16'
-        >
-          FAQs
-        </Link>
-        <Link
-          href='https://discord.com/channels/423160867534929930/1044996697090162698'
-          className='text-white text-lg hover:text-blue-600 w-16'
-        >
-          Support
-        </Link>
-      </div>
+
       {/* Main page */}
       <div className='flex justify-center mt-8'>
         <Image src={titleImage} alt='title image' width={700} height={200} priority />
+      </div>
+      <div className='flex justify-center mb-4 text-lg'>
+        <p>Built with Livepeer Studio. Powered by Livepeer.</p>
       </div>
       <div className='flex justify-center text-center font-matter'>
         <div className='overflow-auto border border-solid border-blue-600 rounded-md p-6 w-3/5'>
