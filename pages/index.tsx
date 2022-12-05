@@ -21,8 +21,8 @@ export default function Home() {
   const [disabled, setDisabled] = useState<boolean>(false);
   const [description, setDescription] = useState<string>();
   const [isWriteInProgress, setIsWriteInProgress] = useState<boolean>();
-  const [ isUpdateAsset, setIsUpdateAsset ] = useState<boolean>();
-  const [ isFileSelected, setIsFileSelected ] = useState<boolean>(false);
+  const [isUpdateAsset, setIsUpdateAsset] = useState<boolean>();
+  const [isFileSelected, setIsFileSelected] = useState<boolean>(false);
   const [isUploadingToIPFS, setIsUploadingToIPFS] = useState<boolean>(false);
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
   const [showErrorMessage, setShowErrorMessage] = useState<boolean>(false);
@@ -30,7 +30,6 @@ export default function Home() {
   const { address } = useAccount();
 
   // Creating an asset
-
   const {
     mutate: createAsset,
     data: createdAsset,
@@ -42,12 +41,13 @@ export default function Home() {
           sources: [{ name: assetName, file: video }] as const,
         }
       : null
-  );
-
+    );
+  
+  // Drag and Drop file function
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
     if (acceptedFiles && acceptedFiles.length > 0 && acceptedFiles?.[0]) {
-      setVideo( acceptedFiles[ 0 ] );
-      setIsFileSelected( true );
+      setVideo(acceptedFiles[0]);
+      setIsFileSelected(true);
     }
   }, []);
 
@@ -59,6 +59,7 @@ export default function Home() {
     onDrop,
   });
 
+  // Getting asset and refreshing for the status
   const {
     data: asset,
     error,
@@ -68,6 +69,7 @@ export default function Home() {
     refetchInterval: (asset) => (asset?.storage?.status?.phase !== 'ready' ? 5000 : false),
   });
 
+  // Storing asset to IPFS with metadata by updating the asset
   const { mutate: updateAsset, status: updateStatus } = useUpdateAsset(
     asset
       ? {
@@ -83,6 +85,7 @@ export default function Home() {
       : undefined
   );
 
+  // Displaying the  progress of uploading and processing the asset
   const progressFormatted = useMemo(
     () =>
       progress?.[0].phase === 'failed'
@@ -98,7 +101,7 @@ export default function Home() {
     [progress]
   );
 
-  
+  // Providing the mint contract information
   const { config } = usePrepareContractWrite({
     // The demo NFT contract address on Polygon Mumbai
     address: '0xA4E1d8FE768d471B048F9d73ff90ED8fcCC03643',
@@ -113,6 +116,7 @@ export default function Home() {
     enabled: Boolean(address && asset?.storage?.ipfs?.nftMetadata?.url),
   });
 
+  // Writing to the mint contract
   const {
     data: contractWriteData,
     isSuccess,
@@ -135,11 +139,11 @@ export default function Home() {
   // Runs after an asset is created
   useEffect(() => {
     if (!isUpdateAsset && updateAsset && updateStatus === 'idle') {
-      setIsUploadingToIPFS( true );
-      setIsFileSelected(false)
+      setIsUploadingToIPFS(true);
+      setIsFileSelected(false);
       // console.log('updateAsset', updateStatus);
-      setIsUpdateAsset( true );
-      setIsProcessing(true)
+      setIsUpdateAsset(true);
+      setIsProcessing(true);
       updateAsset();
     }
   }, [updateAsset, updateStatus, isUpdateAsset]);
@@ -153,8 +157,6 @@ export default function Home() {
     }
   }, [write, asset?.storage?.status?.phase, isWriteInProgress]);
 
-
-
   return (
     <div className={styles.container}>
       <Head>
@@ -163,7 +165,7 @@ export default function Home() {
         <link rel='icon' href='/favicon.ico' />
       </Head>
 
-      {/* Wallet Connect Button */}
+      {/* Wallet Connect Button  & links */}
       <div className='flex justify-between mt-10'>
         <div className='ml-2 font-matter'>
           <Link
@@ -188,7 +190,7 @@ export default function Home() {
         <ConnectButton />
       </div>
 
-      {/* Main page */}
+      {/* Title Image*/}
       <div className='flex justify-center mt-8'>
         <Image src={titleImage} alt='title image' width={700} height={200} priority />
       </div>
@@ -196,6 +198,7 @@ export default function Home() {
         <p>Built with Livepeer Studio. Powered by Livepeer.</p>
       </div>
       <div className='flex justify-center text-center font-matter'>
+        {/* Displays upload form */}
         <div className='overflow-auto border border-solid border-blue-600 rounded-md p-6 w-3/5'>
           {address ? (
             <div>
@@ -217,6 +220,7 @@ export default function Home() {
                 </div>
               )}
 
+              {/* Displays the player with NFT information */}
               {asset?.storage?.ipfs?.cid ? (
                 <div>
                   <div className='flex flex-col justify-center items-center ml-5'>
@@ -241,7 +245,7 @@ export default function Home() {
                           </a>
                           {showErrorMessage && (
                             <div className='border border-solid border-blue-600 rounded-md p-6 mb-4 mt-5 overflow-x-auto font-matter'>
-                              <p className='text-center text-blue-600'>
+                              <p className='text-center text-red-600'>
                                 {contractWriteError.message}
                               </p>
                             </div>
@@ -251,7 +255,7 @@ export default function Home() {
                         <></>
                       )}
                     </div>
-                    {/* NFT Information */}
+                    {/* Card with NFT Information */}
                     <div className='border border-solid border-blue-600 rounded-md p-6 mb-4 mt-5 w-3/4  font-matter bg-zinc-900'>
                       <div className='grid grid-row-2'>
                         <h1 className='text-5xl place-self-start'>{assetName}</h1>
@@ -299,12 +303,13 @@ export default function Home() {
                 </div>
               ) : (
                 <>
-                    {/* {video && isUploadingToIPFS && (
-                      <p className='text-2xl text-blue-500 font-matter'>
-                        Storing on IPFS
-                      </p>
+                  {/* {video && isUploadingToIPFS && (
+                      <p className='text-2xl text-indigo-500 font-matter'>
+                      Once Video is Uploaded and Processed, it will be stored on IPFS and ready for
+                      minting
+                    </p>
                     )} */}
-                  {buttonClicked && video &&  (
+                  {buttonClicked && video && (
                     <p className='text-2xl text-indigo-500 font-matter'>
                       Once Video is Uploaded and Processed, it will be stored on IPFS and ready for
                       minting
@@ -328,6 +333,7 @@ export default function Home() {
                       <p>Select a video file to upload.</p>
                     )}
                   </div>
+                  {/* Form for NFT creation */}
                   <div className={styles.form}>
                     <label htmlFor='asset-name' className='text-left font-matter'>
                       Name: <span className='text-red-600'>*required</span>
