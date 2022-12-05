@@ -26,6 +26,7 @@ export default function Home() {
   const [isUploadingToIPFS, setIsUploadingToIPFS] = useState<boolean>(false);
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
   const [showErrorMessage, setShowErrorMessage] = useState<boolean>(false);
+  const [buttonClicked, setButtonClicked] = useState<boolean>(false);
   const { address } = useAccount();
 
   // Creating an asset
@@ -187,8 +188,6 @@ export default function Home() {
         <ConnectButton />
       </div>
 
-      {/* Social */}
-
       {/* Main page */}
       <div className='flex justify-center mt-8'>
         <Image src={titleImage} alt='title image' width={700} height={200} priority />
@@ -204,9 +203,16 @@ export default function Home() {
                 <div className={styles.drop} {...getRootProps()}>
                   <input {...getInputProps()} />
                   <div>
-                    <p className='text-center'>
+                    {/* <p className='text-center'>
                       Drag and drop or <span>browse files</span>
-                    </p>
+                    </p> */}
+                    {video ? (
+                      <p className='text-xl text-green-600 font-matter'>File Selected</p>
+                    ) : (
+                      <p className='text-center'>
+                        Drag and drop or <span>browse files</span>
+                      </p>
+                    )}
                   </div>
                 </div>
               )}
@@ -228,7 +234,7 @@ export default function Home() {
                           >
                             {showErrorMessage ? <p>Hide Error</p> : <p>Show Error</p>}
                           </button>
-                          <a target='_blank' href={`/`} rel='noreferrer'>
+                          <a href={`/`} rel='noreferrer'>
                             <button className=' hover:text-blue-600 rounded p-5 bg-slate-800 outline outline-offset-2 outline-slate-800 outline-2 shadow-md mr-5'>
                               Return to Form
                             </button>
@@ -246,12 +252,14 @@ export default function Home() {
                       )}
                     </div>
                     {/* NFT Information */}
-                    <div className='border border-solid border-blue-600 rounded-md p-6 mb-4 mt-5 w-3/4 overflow-x-auto font-matter bg-zinc-900'>
+                    <div className='border border-solid border-blue-600 rounded-md p-6 mb-4 mt-5 w-3/4  font-matter bg-zinc-900'>
                       <div className='grid grid-row-2'>
                         <h1 className='text-5xl place-self-start'>{assetName}</h1>
                         <a
                           href='https://twitter.com/intent/tweet?text=Video%20NFT%20created%20on%20Livepeer%20Studio%20app'
                           className='place-self-end'
+                          target='_blank'
+                          rel='noreferrer'
                         >
                           <button className='rounded-md pr-4 p-2 mb-1 hover:bg-zinc-800'>
                             <span className='flex'>
@@ -269,11 +277,9 @@ export default function Home() {
                       </div>
                       <div className='border-b-2 border-zinc-600'></div>
                       <div className='mt-2'>
-                        <p className='text-start text-xl'>
-                          Description: <br /> {description}
-                        </p>
+                        <p className='text-start text-xl'>{description}</p>
                       </div>
-                      <p className='text-center text-blue-600 mt-10'>
+                      <p className='text-center text-blue-600 mt-10 break-words'>
                         <div className='border-b-2 border-zinc-600 mb-4'></div>
                         Gateway URL: {asset?.storage?.ipfs?.gatewayUrl}
                       </p>
@@ -293,26 +299,26 @@ export default function Home() {
                 </div>
               ) : (
                 <>
-                  <div>
-                    {isUploadingToIPFS && (
-                      <p className='text-2xl text-indigo-500 font-matter'>
+                    {/* {video && isUploadingToIPFS && (
+                      <p className='text-2xl text-blue-500 font-matter'>
                         Storing on IPFS
-                        <span>
-                          <br />
-                          <PulseLoader size={7} color='#245cd8' />
-                        </span>
                       </p>
-                    )}
-                  </div>
+                    )} */}
+                  {buttonClicked && video &&  (
+                    <p className='text-2xl text-indigo-500 font-matter'>
+                      Once Video is Uploaded and Processed, it will be stored on IPFS and ready for
+                      minting
+                    </p>
+                  )}
                   <div className={styles.progress}>
                     {video && isFileSelected && (
                       <p className='text-xl text-green-500 font-matter'>
-                        File Selected <span className='text-green-400'>✓</span>
+                        {/* File Selected <span className='text-green-400'>✓</span> */}
                       </p>
                     )}
                     {video ? (
                       <p className='text-xl text-green-500 font-matter whitespace-pre-line'>
-                        {progressFormatted}
+                        {/* {progressFormatted} */}
                       </p>
                     ) : asset?.storage?.status ? (
                       <p className='text-xl text-green-300 font-matter'>
@@ -358,7 +364,7 @@ export default function Home() {
                           className=' hover:text-blue-600 rounded p-3 bg-slate-800 outline outline-offset-2 outline-slate-800 outline-2 shadow-md font-matter'
                           onClick={() => {
                             if (video) {
-                              setDisabled(true), createAsset?.();
+                              setDisabled(true), setButtonClicked(true), createAsset?.();
                             }
                           }}
                           disabled={!video || isLoading || Boolean(asset)}
