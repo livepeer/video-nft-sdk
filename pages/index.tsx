@@ -160,8 +160,8 @@ export default function Home() {
   return (
     <div className={styles.container}>
       <Head>
-        <title>Livepeer Video NFT Sample App</title>
-        <meta name='description' content='Livepeer Studio Mint NFT App' />
+        <title> Long Take NFT Publisher</title>
+        <meta name='description' content=' Long Take NFT Publisher' />
         <link rel='icon' href='/favicon.ico' />
       </Head>
 
