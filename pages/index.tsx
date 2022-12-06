@@ -53,7 +53,7 @@ export default function Home() {
 
   const { getRootProps, getInputProps } = useDropzone({
     accept: {
-      'video/*': ['*.mp4'],
+      'video/*': ['.mp4'],
     },
     maxFiles: 1,
     onDrop,
