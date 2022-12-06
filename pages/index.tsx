@@ -166,7 +166,7 @@ export default function Home() {
       </Head>
 
       {/* Wallet Connect Button  & links */}
-      <div className='flex justify-between mt-10'>
+      <div className='flex justify-between mt-10 font-matter'>
         <div className='ml-2 font-matter'>
           <Link
             href='https://discord.com/channels/423160867534929930/1044996697090162698'
@@ -191,28 +191,31 @@ export default function Home() {
       </div>
 
       {/* Title Image*/}
-      <div className='flex justify-center mt-8'>
+      <div className='flex justify-center mt-8 font-matter'>
         <Image src={titleImage} alt='title image' width={700} height={200} priority />
       </div>
-      <div className='flex justify-center mb-4 text-lg'>
+      <div className='flex justify-center mb-4 text-lg font-matter'>
         <p>Built with Livepeer Studio. Powered by Livepeer.</p>
       </div>
       <div className='flex justify-center text-center font-matter'>
         {/* Displays upload form */}
-        <div className='overflow-auto border border-solid border-blue-600 rounded-md p-6 w-3/5'>
+        <div className='overflow-auto border border-solid border-blue-600 rounded-md p-6 w-3/5 '>
           {address ? (
             <div>
               {asset?.status?.phase !== 'ready' && (
-                <div className={styles.drop} {...getRootProps()}>
+                <div
+                  className='border border-dotted border-blue-600 rounded p-5 font-matter'
+                  {...getRootProps()}
+                >
                   <input {...getInputProps()} />
-                  <div>
+                  <div className='font-matter'>
                     {/* <p className='text-center'>
                       Drag and drop or <span>browse files</span>
                     </p> */}
                     {video ? (
                       <p className='text-xl text-green-600 font-matter'>File Selected</p>
                     ) : (
-                      <p className='text-center'>
+                      <p className='text-center text-lg'>
                         Drag and drop or <span>browse files</span>
                       </p>
                     )}
@@ -223,29 +226,29 @@ export default function Home() {
               {/* Displays the player with NFT information */}
               {asset?.storage?.ipfs?.cid ? (
                 <div>
-                  <div className='flex flex-col justify-center items-center ml-5'>
-                    <div className='border border-solid border-blue-600 rounded-md p-6 mb-4 mt-5 w-3/4'>
+                  <div className='flex flex-col justify-center items-center ml-5 font-matter'>
+                    <div className='border border-solid border-blue-600 rounded-md p-6 mb-4 mt-5 w-3/4 font-matter'>
                       <Player playbackId={asset?.storage?.ipfs?.cid} />
                     </div>
-                    <div className='items-center w-3/4'>
+                    <div className='items-center w-3/4 font-matter'>
                       {contractWriteData?.hash && isSuccess ? (
                         <div className='flex font-matter'></div>
                       ) : contractWriteError ? (
                         <div>
                           <button
-                            className=' hover:text-blue-600 rounded p-5 bg-slate-800 outline outline-offset-2 outline-slate-800 outline-2 shadow-md mr-5'
+                            className=' hover:text-blue-600 rounded p-5 bg-slate-800 outline outline-offset-2 outline-slate-800 outline-2 shadow-md mr-5 font-matter'
                             onClick={() => setShowErrorMessage(!showErrorMessage)}
                           >
                             {showErrorMessage ? <p>Hide Error</p> : <p>Show Error</p>}
                           </button>
                           <a href={`/`} rel='noreferrer'>
-                            <button className=' hover:text-blue-600 rounded p-5 bg-slate-800 outline outline-offset-2 outline-slate-800 outline-2 shadow-md mr-5'>
+                            <button className=' hover:text-blue-600 rounded p-5 bg-slate-800 outline outline-offset-2 outline-slate-800 outline-2 shadow-md mr-5 font-matter'>
                               Return to Form
                             </button>
                           </a>
                           {showErrorMessage && (
                             <div className='border border-solid border-blue-600 rounded-md p-6 mb-4 mt-5 overflow-x-auto font-matter'>
-                              <p className='text-center text-red-600'>
+                              <p className='text-center text-red-600 font-matter'>
                                 {contractWriteError.message}
                               </p>
                             </div>
@@ -257,16 +260,16 @@ export default function Home() {
                     </div>
                     {/* Card with NFT Information */}
                     <div className='border border-solid border-blue-600 rounded-md p-6 mb-4 mt-5 w-3/4  font-matter bg-zinc-900'>
-                      <div className='grid grid-row-2'>
-                        <h1 className='text-5xl place-self-start'>{assetName}</h1>
+                      <div className='grid grid-row-2 font-matter'>
+                        <h1 className='text-5xl place-self-start font-matter'>{assetName}</h1>
                         <a
                           href='https://twitter.com/intent/tweet?text=Video%20NFT%20created%20on%20Livepeer%20Studio%20app'
                           className='place-self-end'
                           target='_blank'
                           rel='noreferrer'
                         >
-                          <button className='rounded-md pr-4 p-2 mb-1 hover:bg-zinc-800'>
-                            <span className='flex'>
+                          <button className='rounded-md pr-4 p-2 mb-1 hover:bg-zinc-800 font-matter'>
+                            <span className='flex font-matter'>
                               <Image
                                 className='mr-2'
                                 src='/icons8-forward-arrow-30.png'
@@ -279,12 +282,12 @@ export default function Home() {
                           </button>
                         </a>
                       </div>
-                      <div className='border-b-2 border-zinc-600'></div>
-                      <div className='mt-2'>
-                        <p className='text-start text-xl'>{description}</p>
+                      <div className='border-b-2 border-zinc-600 font-matter'></div>
+                      <div className='mt-2 font-matter'>
+                        <p className='text-start text-xl font-matter'>{description}</p>
                       </div>
-                      <p className='text-center text-blue-600 mt-10 break-words'>
-                        <div className='border-b-2 border-zinc-600 mb-4'></div>
+                      <p className='text-center text-blue-600 mt-10 break-words font-matter'>
+                        <div className='border-b-2 border-zinc-600 mb-4 font-matter'></div>
                         Gateway URL: {asset?.storage?.ipfs?.gatewayUrl}
                       </p>
                       {isSuccess && (
@@ -293,7 +296,7 @@ export default function Home() {
                           href={`https://mumbai.polygonscan.com/tx/${contractWriteData?.hash}`}
                           rel='noreferrer'
                         >
-                          <button className=' mt-6 rounded px-5 py-2 hover:bg-slate-800 mr-5 bg-zinc-700'>
+                          <button className=' mt-6 rounded px-5 py-2 hover:bg-slate-800 mr-5 bg-zinc-700 font-matter'>
                             View Transaction
                           </button>
                         </a>
@@ -315,7 +318,7 @@ export default function Home() {
                       minting
                     </p>
                   )}
-                  <div className={styles.progress}>
+                  <div className='text-center my-5 font-matter text-blue-600'>
                     {video && isFileSelected && (
                       <p className='text-xl text-green-500 font-matter'>
                         {/* File Selected <span className='text-green-400'>✓</span> */}
@@ -330,16 +333,16 @@ export default function Home() {
                         {asset?.storage?.status?.progress}
                       </p>
                     ) : (
-                      <p>Select a video file to upload.</p>
+                      <p className='font-matter'>Select a video file to upload.</p>
                     )}
                   </div>
                   {/* Form for NFT creation */}
                   <div className={styles.form}>
-                    <label htmlFor='asset-name' className='text-left font-matter'>
+                    <label htmlFor='asset-name' className='text-left'>
                       Name: <span className='text-red-600'>*required</span>
                     </label>
                     <input
-                      className='rounded bg-slate-700 p-1 font-matter'
+                      className='rounded bg-slate-700 p-1'
                       type='text'
                       value={assetName}
                       name='asset-name'
@@ -349,11 +352,11 @@ export default function Home() {
                       onChange={(e) => setAssetName(e.target.value)}
                     />
                     <br />
-                    <label htmlFor='description' className='text-left font-matter'>
+                    <label htmlFor='description' className='text-left'>
                       Description: <span className='text-red-600'>*required</span>
                     </label>
                     <textarea
-                      className='rounded bg-slate-700 mb-5 p-1 font-matter'
+                      className='rounded bg-slate-700 mb-5 p-1'
                       value={description}
                       name='description'
                       required
@@ -364,21 +367,28 @@ export default function Home() {
                   </div>
                   {/* Upload Asset */}
                   <div className='flex justify-center'>
-                    {asset?.status?.phase !== 'ready' && video && assetName && description ? (
+                    {asset?.status?.phase !== 'ready' ? (
                       <div>
-                        <button
-                          className=' hover:text-blue-600 rounded p-3 bg-slate-800 outline outline-offset-2 outline-slate-800 outline-2 shadow-md font-matter'
-                          onClick={() => {
-                            if (video) {
-                              setDisabled(true), setButtonClicked(true), createAsset?.();
-                            }
-                          }}
-                          disabled={!video || isLoading || Boolean(asset)}
-                        >
-                          Create NFT
-                          <br />
-                          {isLoading && <BarLoader color='#fff' />}
-                        </button>
+                        {!description ? (
+                          <button className='rounded p-3 bg-slate-800 outline outline-offset-2 outline-slate-800 outline-2 shadow-md opacity-50 cursor-not-allowed'>
+                            Create NFT
+                          </button>
+                        ) : (
+                          <button
+                            className='hover:text-blue-600 rounded p-3 bg-slate-800 outline outline-offset-2 outline-slate-800 outline-2 shadow-md font-matter'
+                            onClick={() => {
+                              if (video) {
+                                setDisabled(true), setButtonClicked(true), createAsset?.();
+                              }
+                            }}
+                            // disabled={!video || isLoading || Boolean(asset)}
+                          >
+                            Create NFT
+                            <br />
+                            {isLoading && <BarLoader color='#fff' />}
+                          </button>
+                        )}
+
                         <p className='mt-4 text-blue-600'>
                           Once Upload is Complete. Wallet Interface Will Appear
                         </p>
