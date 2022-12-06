@@ -288,7 +288,11 @@ export default function Home() {
                       </div>
                       <p className='text-center text-blue-600 mt-10 break-words font-matter'>
                         <div className='border-b-2 border-zinc-600 mb-4 font-matter'></div>
-                        Gateway URL: {asset?.storage?.ipfs?.gatewayUrl}
+                          Gateway URL:
+                        <br/>
+                        <a href={asset?.storage?.ipfs?.gatewayUrl}>
+                          {asset?.storage?.ipfs?.gatewayUrl}
+                        </a>
                       </p>
                       {isSuccess && (
                         <a
