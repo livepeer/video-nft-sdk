@@ -204,7 +204,7 @@ export default function Home() {
             <div>
               {asset?.status?.phase !== 'ready' && (
                 <div
-                  className='border border-dotted border-blue-600 rounded p-5 font-matter'
+                  className='border border-dotted border-blue-600 rounded p-5 font-matter mb-4 cursor-pointer'
                   {...getRootProps()}
                 >
                   <input {...getInputProps()} />
