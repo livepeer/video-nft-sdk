@@ -96,12 +96,14 @@ export default function Home() {
         ? 'Waiting'
         : progress?.[0].phase === 'uploading'
         ? `Video Uploading: ${Math.round(progress?.[0]?.progress * 100)}%`
-        : progress?.[0].phase === 'processing'
+            : progress?.[ 0 ].phase === 'processing'
         ? `File Uploaded ✓          
               Video Processing: ${Math.round(progress?.[0].progress * 100)}%`
         : null,
     [progress]
   );
+
+
 
   // Providing the mint contract information
   const { config } = usePrepareContractWrite({
@@ -235,7 +237,7 @@ let twitterLink = `https://twitter.com/intent/tweet?text=Check%20out%20my%20Vide
                     <p className='mt-4 text-blue-600'>
                       Your video is now ready to be minted! Complete minting process in your wallet.
                     </p>
-                    <div className='border border-solid border-blue-600 rounded-md p-6 mb-4 mt-5 w-3/4 font-matter'>
+                    <div className='border border-solid border-blue-600 rounded-md p-6 mb-4 mt-5 w-[700px] font-matter'>
                       <Player playbackId={asset?.storage?.ipfs?.cid} />
                     </div>
                     <div className='items-center w-3/4 font-matter'>
@@ -326,14 +328,14 @@ let twitterLink = `https://twitter.com/intent/tweet?text=Check%20out%20my%20Vide
                     </p>
                   )}
                   <div className='text-center my-5 font-matter text-blue-600'>
-                    {video && isFileSelected && (
+                    {/* {video && isFileSelected && (
                       <p className='text-xl text-green-500 font-matter'>
-                        {/* File Selected <span className='text-green-400'>✓</span> */}
+                        File Selected <span className='text-green-400'>✓</span>
                       </p>
-                    )}
+                    )} */}
                     {video ? (
                       <p className='text-xl text-green-500 font-matter whitespace-pre-line'>
-                        {/* {progressFormatted} */}
+                        {progressFormatted}
                       </p>
                     ) : asset?.storage?.status ? (
                       <p className='text-xl text-green-300 font-matter'>
