@@ -10,6 +10,8 @@ import { useAccount, useContractWrite, usePrepareContractWrite } from 'wagmi';
 import styles from '../styles/MintNFT.module.css';
 import Link from 'next/link';
 import titleImage from '../assets/titleImage.png'
+import { BsCheck2Circle } from 'react-icons/bs';
+import { BsTwitter } from 'react-icons/bs';
 
 
 
@@ -157,6 +159,8 @@ export default function Home() {
     }
   }, [write, asset?.storage?.status?.phase, isWriteInProgress]);
 
+let twitterLink = `https://twitter.com/intent/tweet?text=Check%20out%20my%20Video%20NFT%20📽️%0D%20${assetName}%20minted%20on%20the%20%23LongTakeNFT%20Publisher.%0D%0D🛠️%20Built%20with%20%40livepeerstudio%0D%20🌐%20Powered%20by%20%40Livepeer%0D%0DCreate%20your%20%23LongTakeNft%20here%20👇%20https://lvpr.link/3VQQzU8`;
+
   return (
     <div className={styles.container}>
       <Head>
@@ -208,16 +212,17 @@ export default function Home() {
                   {...getRootProps()}
                 >
                   <input {...getInputProps()} />
-                  <div className='font-matter'>
+                  <div className='font-matter flex-row'>
                     {/* <p className='text-center'>
                       Drag and drop or <span>browse files</span>
                     </p> */}
                     {video ? (
-                      <p className='text-xl text-green-600 font-matter'>File Selected</p>
+                      <div className='font-matter flex justify-center'>
+                        <p className='text-xl text-green-600 font-matter'>File Selected </p>
+                        <BsCheck2Circle className='text-green-600 text-xl mt-1 ml-4' />
+                      </div>
                     ) : (
-                      <p className='text-center text-lg'>
-                        Drag and drop or <span>browse files</span>
-                      </p>
+                      <p className='text-center text-lg'>Click to browser or drag a file here</p>
                     )}
                   </div>
                 </div>
@@ -227,6 +232,9 @@ export default function Home() {
               {asset?.storage?.ipfs?.cid ? (
                 <div>
                   <div className='flex flex-col justify-center items-center ml-5 font-matter'>
+                    <p className='mt-4 text-blue-600'>
+                      Your video is now ready to be minted! Complete minting process in your wallet.
+                    </p>
                     <div className='border border-solid border-blue-600 rounded-md p-6 mb-4 mt-5 w-3/4 font-matter'>
                       <Player playbackId={asset?.storage?.ipfs?.cid} />
                     </div>
@@ -263,21 +271,16 @@ export default function Home() {
                       <div className='grid grid-row-2 font-matter'>
                         <h1 className='text-5xl place-self-start font-matter'>{assetName}</h1>
                         <a
-                          href='https://twitter.com/intent/tweet?text=Video%20NFT%20created%20on%20Livepeer%20Studio%20app'
+                          href={twitterLink}
+                          // ${assetName}%0%0%0%0
                           className='place-self-end'
                           target='_blank'
                           rel='noreferrer'
                         >
-                          <button className='rounded-md pr-4 p-2 mb-1 hover:bg-zinc-800 font-matter'>
+                          <button className='bg-sky-500 hover:bg-slate-200 rounded-md pr-4 p-2 mb-1  font-matter hover:text-sky-500'>
                             <span className='flex font-matter'>
-                              <Image
-                                className='mr-2'
-                                src='/icons8-forward-arrow-30.png'
-                                alt='share arrow'
-                                width={20}
-                                height={3}
-                              />
-                              <p>Share</p>
+                              <BsTwitter className='text-xl mt-0.5 ' />
+                              <p className='text-xl  ml-1'>Share</p>
                             </span>{' '}
                           </button>
                         </a>
@@ -288,8 +291,8 @@ export default function Home() {
                       </div>
                       <p className='text-center text-blue-600 mt-10 break-words font-matter'>
                         <div className='border-b-2 border-zinc-600 mb-4 font-matter'></div>
-                          Gateway URL:
-                        <br/>
+                        Gateway URL:
+                        <br />
                         <a href={asset?.storage?.ipfs?.gatewayUrl}>
                           {asset?.storage?.ipfs?.gatewayUrl}
                         </a>
@@ -337,13 +340,13 @@ export default function Home() {
                         {asset?.storage?.status?.progress}
                       </p>
                     ) : (
-                      <p className='font-matter'>Select a video file to upload.</p>
+                      <></>
                     )}
                   </div>
                   {/* Form for NFT creation */}
                   <div className={styles.form}>
                     <label htmlFor='asset-name' className='text-left'>
-                      Name: <span className='text-red-600'>*required</span>
+                      Name: <span className='text-red-600'>*</span>
                     </label>
                     <input
                       className='rounded bg-slate-700 p-1'
@@ -351,20 +354,20 @@ export default function Home() {
                       value={assetName}
                       name='asset-name'
                       required
-                      placeholder='Name of NFT'
+                      placeholder='Type the name of your NFT here'
                       disabled={disabled}
                       onChange={(e) => setAssetName(e.target.value)}
                     />
                     <br />
                     <label htmlFor='description' className='text-left'>
-                      Description: <span className='text-red-600'>*required</span>
+                      Description: <span className='text-red-600'>*</span>
                     </label>
                     <textarea
                       className='rounded bg-slate-700 mb-5 p-1'
                       value={description}
                       name='description'
                       required
-                      placeholder='Description of NFT'
+                      placeholder='Type a description of your NFT here'
                       disabled={disabled}
                       onChange={(e) => setDescription(e.target.value)}
                     />
@@ -394,7 +397,7 @@ export default function Home() {
                         )}
 
                         <p className='mt-4 text-blue-600'>
-                          Once Upload is Complete. Wallet Interface Will Appear
+                          When your wallet interface appears, your video is ready to be minted!
                         </p>
                       </div>
                     ) : (
