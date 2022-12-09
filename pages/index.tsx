@@ -1,7 +1,7 @@
 import Head from 'next/head';
 import Image from 'next/image';
 import { useMemo, useCallback, useState, useEffect } from 'react';
-import { useAsset, useUpdateAsset, useCreateAsset, Player } from '@livepeer/react';
+import { useAsset, useUpdateAsset, useCreateAsset, Player, PlaybackMonitor } from '@livepeer/react';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { useDropzone } from 'react-dropzone';
 import BarLoader from 'react-spinners/BarLoader';
@@ -9,11 +9,9 @@ import PulseLoader from 'react-spinners/PulseLoader';
 import { useAccount, useContractWrite, usePrepareContractWrite } from 'wagmi';
 import styles from '../styles/MintNFT.module.css';
 import Link from 'next/link';
-import titleImage from '../assets/titleImage.png'
+import titleImage from '../assets/titleImage.png';
 import { BsCheck2Circle } from 'react-icons/bs';
 import { BsTwitter } from 'react-icons/bs';
-
-
 
 import { videoNftAbi } from '../components/videoNftAbi';
 
@@ -43,8 +41,8 @@ export default function Home() {
           sources: [{ name: assetName, file: video }] as const,
         }
       : null
-    );
-  
+  );
+
   // Drag and Drop file function
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
     if (acceptedFiles && acceptedFiles.length > 0 && acceptedFiles?.[0]) {
@@ -96,14 +94,35 @@ export default function Home() {
         ? 'Waiting'
         : progress?.[0].phase === 'uploading'
         ? `Video Uploading: ${Math.round(progress?.[0]?.progress * 100)}%`
-            : progress?.[ 0 ].phase === 'processing'
-        ? `File Uploaded ✓          
-              Video Processing: ${Math.round(progress?.[0].progress * 100)}%`
+        : progress?.[0].phase === 'processing'
+        ? `Video Processing: ${Math.round(progress?.[0].progress * 100)}%`
         : null,
     [progress]
   );
 
+  const processing = useMemo(
+    () => (progress?.[0].phase === 'uploading' ? 'Processing to ensure optimal playback...' : null),
+    [progress]
+  );
 
+  const uploading = useMemo(
+    () =>
+      progress?.[0].phase === 'processing'
+        ? `Processing to ensure optimal playback ✅
+     Uploading to the Livepeer network...`
+        : null,
+    [progress]
+  );
+
+  const uploadIPFS = useMemo(
+    () =>
+      progress?.[0].phase === 'ready'
+        ? `Processing to ensure optimal playback ✅
+     Uploading to the Livepeer network ✅
+      Storing on IPFS...`
+        : null,
+    [progress]
+  );
 
   // Providing the mint contract information
   const { config } = usePrepareContractWrite({
@@ -161,7 +180,7 @@ export default function Home() {
     }
   }, [write, asset?.storage?.status?.phase, isWriteInProgress]);
 
-let twitterLink = `https://twitter.com/intent/tweet?text=Check%20out%20my%20Video%20NFT%20📽️%0D%20${assetName}%20minted%20on%20the%20%23LongTakeNFT%20Publisher.%0D%0D🛠️%20Built%20with%20%40livepeerstudio%0D%20🌐%20Powered%20by%20%40Livepeer%0D%0DCreate%20your%20%23LongTakeNft%20here%20👇%20https://lvpr.link/3VQQzU8`;
+  let twitterLink = `https://twitter.com/intent/tweet?text=Check%20out%20my%20Video%20NFT%20📽️%0D%20${assetName}%20minted%20on%20the%20%23LongTakeNFT%20Publisher.%0D%0D🛠️%20Built%20with%20%40livepeerstudio%0D%20🌐%20Powered%20by%20%40Livepeer%0D%0DCreate%20your%20%23LongTakeNft%20here%20👇%20https://lvpr.link/3VQQzU8`;
 
   return (
     <div className={styles.container}>
@@ -215,9 +234,6 @@ let twitterLink = `https://twitter.com/intent/tweet?text=Check%20out%20my%20Vide
                 >
                   <input {...getInputProps()} />
                   <div className='font-matter flex-row'>
-                    {/* <p className='text-center'>
-                      Drag and drop or <span>browse files</span>
-                    </p> */}
                     {video ? (
                       <div className='font-matter flex justify-center'>
                         <p className='text-xl text-green-600 font-matter'>File Selected </p>
@@ -234,10 +250,10 @@ let twitterLink = `https://twitter.com/intent/tweet?text=Check%20out%20my%20Vide
               {asset?.storage?.ipfs?.cid ? (
                 <div>
                   <div className='flex flex-col justify-center items-center ml-5 font-matter'>
-                    <p className='mt-4 text-blue-600'>
+                    <p className='mt-4 text-white'>
                       Your video is now ready to be minted! Complete minting process in your wallet.
                     </p>
-                    <div className='border border-solid border-blue-600 rounded-md p-6 mb-4 mt-5 w-[700px] font-matter'>
+                    <div className='border border-solid border-blue-600 rounded-md p-6 mb-4 mt-5 lg:w-3/4 w-100 font-matter'>
                       <Player playbackId={asset?.storage?.ipfs?.cid} />
                     </div>
                     <div className='items-center w-3/4 font-matter'>
@@ -246,13 +262,13 @@ let twitterLink = `https://twitter.com/intent/tweet?text=Check%20out%20my%20Vide
                       ) : contractWriteError ? (
                         <div>
                           <button
-                            className=' hover:text-blue-600 rounded p-5 bg-slate-800 outline outline-offset-2 outline-slate-800 outline-2 shadow-md mr-5 font-matter'
+                            className='border border-transparent hover:text-blue-600 rounded-lg px-5 py-3 bg-slate-800 mr-5 hover:border-blue-600 font-matter'
                             onClick={() => setShowErrorMessage(!showErrorMessage)}
                           >
                             {showErrorMessage ? <p>Hide Error</p> : <p>Show Error</p>}
                           </button>
                           <a href={`/`} rel='noreferrer'>
-                            <button className=' hover:text-blue-600 rounded p-5 bg-slate-800 outline outline-offset-2 outline-slate-800 outline-2 shadow-md mr-5 font-matter'>
+                            <button className='border border-transparent hover:text-blue-600 rounded-lg px-5 py-3 bg-slate-800 mr-5 hover:border-blue-600 font-matter'>
                               Return to Form
                             </button>
                           </a>
@@ -269,12 +285,11 @@ let twitterLink = `https://twitter.com/intent/tweet?text=Check%20out%20my%20Vide
                       )}
                     </div>
                     {/* Card with NFT Information */}
-                    <div className='border border-solid border-blue-600 rounded-md p-6 mb-4 mt-5 w-3/4  font-matter bg-zinc-900'>
+                    <div className='border border-solid border-blue-600 rounded-md p-6 mb-4 mt-5 lg:w-3/4 w-96 font-matter'>
                       <div className='grid grid-row-2 font-matter'>
                         <h1 className='text-5xl place-self-start font-matter'>{assetName}</h1>
                         <a
                           href={twitterLink}
-                          // ${assetName}%0%0%0%0
                           className='place-self-end'
                           target='_blank'
                           rel='noreferrer'
@@ -291,7 +306,7 @@ let twitterLink = `https://twitter.com/intent/tweet?text=Check%20out%20my%20Vide
                       <div className='mt-2 font-matter'>
                         <p className='text-start text-xl font-matter'>{description}</p>
                       </div>
-                      <p className='text-center text-blue-600 mt-10 break-words font-matter'>
+                      <p className='text-center text-white hover:text-blue-600 mt-10 break-words font-matter'>
                         <div className='border-b-2 border-zinc-600 mb-4 font-matter'></div>
                         Gateway URL:
                         <br />
@@ -315,31 +330,18 @@ let twitterLink = `https://twitter.com/intent/tweet?text=Check%20out%20my%20Vide
                 </div>
               ) : (
                 <>
-                  {/* {video && isUploadingToIPFS && (
-                      <p className='text-2xl text-indigo-500 font-matter'>
-                      Once Video is Uploaded and Processed, it will be stored on IPFS and ready for
-                      minting
-                    </p>
-                    )} */}
                   {buttonClicked && video && (
-                    <p className='text-2xl text-indigo-500 font-matter'>
+                    <p className='text-2xl font-matter'>
                       Once Video is Uploaded and Processed, it will be stored on IPFS and ready for
                       minting
                     </p>
                   )}
                   <div className='text-center my-5 font-matter text-blue-600'>
-                    {/* {video && isFileSelected && (
-                      <p className='text-xl text-green-500 font-matter'>
-                        File Selected <span className='text-green-400'>✓</span>
-                      </p>
-                    )} */}
                     {video ? (
                       <p className='text-xl text-green-500 font-matter whitespace-pre-line'>
-                        {progressFormatted}
-                      </p>
-                    ) : asset?.storage?.status ? (
-                      <p className='text-xl text-green-300 font-matter'>
-                        {asset?.storage?.status?.progress}
+                        {uploading}
+                        {processing}
+                        {uploadIPFS}
                       </p>
                     ) : (
                       <></>
@@ -379,12 +381,12 @@ let twitterLink = `https://twitter.com/intent/tweet?text=Check%20out%20my%20Vide
                     {asset?.status?.phase !== 'ready' ? (
                       <div>
                         {!description ? (
-                          <button className='rounded p-3 bg-slate-800 outline outline-offset-2 outline-slate-800 outline-2 shadow-md opacity-50 cursor-not-allowed'>
+                          <button className='rounded-lg p-3 bg-slate-800 opacity-50 cursor-not-allowed'>
                             Create NFT
                           </button>
                         ) : (
                           <button
-                            className='hover:text-blue-600 rounded p-3 bg-slate-800 outline outline-offset-2 outline-slate-800 outline-2 shadow-md font-matter'
+                            className='border border-transparent hover:text-blue-600 rounded-lg px-5 py-3 bg-slate-800 mr-5 hover:border-blue-600 font-matter'
                             onClick={() => {
                               if (video) {
                                 setDisabled(true), setButtonClicked(true), createAsset?.();
@@ -398,7 +400,7 @@ let twitterLink = `https://twitter.com/intent/tweet?text=Check%20out%20my%20Vide
                           </button>
                         )}
 
-                        <p className='mt-4 text-blue-600'>
+                        <p className='mt-4 text-white'>
                           When your wallet interface appears, your video is ready to be minted!
                         </p>
                       </div>
