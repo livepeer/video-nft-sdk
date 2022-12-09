@@ -317,7 +317,7 @@ export default function Home() {
                       {isSuccess && (
                         <a
                           target='_blank'
-                          href={`https://mumbai.polygonscan.com/tx/${contractWriteData?.hash}`}
+                          href={`https://polygonscan.com/tx/${contractWriteData?.hash}`}
                           rel='noreferrer'
                         >
                           <button className=' mt-6 rounded px-5 py-2 hover:bg-slate-800 mr-5 bg-zinc-700 font-matter'>
