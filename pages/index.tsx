@@ -126,8 +126,8 @@ export default function Home() {
 
   // Providing the mint contract information
   const { config } = usePrepareContractWrite({
-    // The demo NFT contract address on Polygon Mumbai
-    address: '0xA4E1d8FE768d471B048F9d73ff90ED8fcCC03643',
+    // The demo NFT contract address on Polygon Mainnet
+    address: '0x69C53E7b8c41bF436EF5a2D81DB759Dc8bD83b5F',
     abi: videoNftAbi,
     // Function on the contract
     functionName: 'mint',
