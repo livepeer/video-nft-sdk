@@ -100,16 +100,16 @@ export default function Home() {
     [progress]
   );
 
-  const processing = useMemo(
-    () => (progress?.[0].phase === 'uploading' ? 'Processing to ensure optimal playback...' : null),
+  const uploading = useMemo(
+    () => (progress?.[0].phase === 'uploading' ? ' Uploading to the Livepeer network...' : null),
     [progress]
   );
 
-  const uploading = useMemo(
+  const processing = useMemo(
     () =>
       progress?.[0].phase === 'processing'
-        ? `Processing to ensure optimal playback ✅
-     Uploading to the Livepeer network...`
+        ? `Uploading to the Livepeer network ✅
+     Processing to ensure optimal playback...`
         : null,
     [progress]
   );
@@ -117,8 +117,8 @@ export default function Home() {
   const uploadIPFS = useMemo(
     () =>
       progress?.[0].phase === 'ready'
-        ? `Processing to ensure optimal playback ✅
-     Uploading to the Livepeer network ✅
+        ? `Uploading to the Livepeer network ✅
+     Processing to ensure optimal playback ✅
       Storing on IPFS...`
         : null,
     [progress]
@@ -180,7 +180,7 @@ export default function Home() {
     }
   }, [write, asset?.storage?.status?.phase, isWriteInProgress]);
 
-  let twitterLink = `https://twitter.com/intent/tweet?text=Check%20out%20my%20Video%20NFT%20📽️%0D%20${assetName}%20minted%20on%20the%20%23LongTakeNFT%20Publisher.%0D%0D🛠️%20Built%20with%20%40livepeerstudio%0D%20🌐%20Powered%20by%20%40Livepeer%0D%0DCreate%20your%20%23LongTakeNft%20here%20👇%20https://lvpr.link/3VQQzU8`;
+  let twitterLink = `https://twitter.com/intent/tweet?text=Check%20out%20my%20Video%20NFT%20📽️%0D${assetName}%20minted%20on%20the%20%23LongTakeNFT%20Publisher.%0D%0D🛠️%20Built%20with%20%40livepeerstudio%0D%20🌐%20Powered%20by%20%40Livepeer%0D%0DCreate%20your%20%23LongTakeNFT%20here%20👇%20https://lvpr.link/3VQQzU8`;
 
   return (
     <div className={styles.container}>
@@ -330,21 +330,13 @@ export default function Home() {
                 </div>
               ) : (
                 <>
-                  {buttonClicked && video && (
-                    <p className='text-2xl font-matter'>
-                      Once Video is Uploaded and Processed, it will be stored on IPFS and ready for
-                      minting
-                    </p>
-                  )}
                   <div className='text-center my-5 font-matter text-blue-600'>
-                    {video ? (
-                      <p className='text-xl text-green-500 font-matter whitespace-pre-line'>
+                    {video && (
+                      <p className='text-xl text-white font-matter whitespace-pre-line'>
                         {uploading}
                         {processing}
                         {uploadIPFS}
                       </p>
-                    ) : (
-                      <></>
                     )}
                   </div>
                   {/* Form for NFT creation */}
@@ -376,9 +368,11 @@ export default function Home() {
                       onChange={(e) => setDescription(e.target.value)}
                     />
                   </div>
+
                   {/* Upload Asset */}
                   <div className='flex justify-center'>
-                    {asset?.status?.phase !== 'ready' ? (
+                    {asset?.status?.phase !== 'ready' ||
+                    asset?.storage?.status?.phase !== 'ready' ? (
                       <div>
                         {!description ? (
                           <button className='rounded-lg p-3 bg-slate-800 opacity-50 cursor-not-allowed'>
