@@ -221,7 +221,7 @@ export default function Home() {
       </div>
       <div className='flex flex-col text-lg font-matter'>
         <p className='text-center'>Built with Livepeer Studio. Powered by Livepeer.</p>
-        <p className='text-center text-sm mt-1 mb-4 text-slate-200 container mx-auto px-[200px]'>
+        <p className='text-center text-sm mt-1 mb-4 text-slate-400 font-thin container mx-auto px-[200px]'>
           Create a video NFT from files up to 1GB and share it on any NFT marketplace. The Long Take
           NFT Publisher ensures that video playback will be optimized for viewers on all bandwidths
           and device types. Note, processing time varies based on size of the file and speed of the
