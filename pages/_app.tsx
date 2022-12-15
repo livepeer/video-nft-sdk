@@ -11,7 +11,7 @@ import { publicProvider } from 'wagmi/providers/public';
 import { infuraProvider } from 'wagmi/providers/infura';
 
 const { chains, provider, webSocketProvider } = configureChains(
-  [chain.mainnet, chain.polygon],
+  [ chain.polygon],
   [infuraProvider({ apiKey: process.env.NEXT_PUBLIC_INFURA_API_KEY }),
   publicProvider(),
 ]);
