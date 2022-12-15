@@ -16,18 +16,19 @@ import { BsTwitter } from 'react-icons/bs';
 import { videoNftAbi } from '../components/videoNftAbi';
 
 export default function Home() {
-  const [video, setVideo] = useState<File | null>(null);
-  const [assetName, setAssetName] = useState<string>('');
-  const [disabled, setDisabled] = useState<boolean>(false);
-  const [description, setDescription] = useState<string>();
-  const [isWriteInProgress, setIsWriteInProgress] = useState<boolean>();
-  const [isUpdateAsset, setIsUpdateAsset] = useState<boolean>();
-  const [isFileSelected, setIsFileSelected] = useState<boolean>(false);
-  const [isUploadingToIPFS, setIsUploadingToIPFS] = useState<boolean>(false);
-  const [isProcessing, setIsProcessing] = useState<boolean>(false);
-  const [showErrorMessage, setShowErrorMessage] = useState<boolean>(false);
-  const [buttonClicked, setButtonClicked] = useState<boolean>(false);
+  const [ video, setVideo ] = useState<File | null>( null );
+  const [ assetName, setAssetName ] = useState<string>( '' );
+  const [ disabled, setDisabled ] = useState<boolean>( false );
+  const [ description, setDescription ] = useState<string>();
+  const [ isWriteInProgress, setIsWriteInProgress ] = useState<boolean>();
+  const [ isUpdateAsset, setIsUpdateAsset ] = useState<boolean>();
+  const [ isFileSelected, setIsFileSelected ] = useState<boolean>( false );
+  const [ isUploadingToIPFS, setIsUploadingToIPFS ] = useState<boolean>( false );
+  const [ isProcessing, setIsProcessing ] = useState<boolean>( false );
+  const [ showErrorMessage, setShowErrorMessage ] = useState<boolean>( false );
+  const [ buttonClicked, setButtonClicked ] = useState<boolean>( false );
   const { address } = useAccount();
+
 
   // Creating an asset
   const {
@@ -191,7 +192,7 @@ export default function Home() {
       </Head>
 
       {/* Wallet Connect Button  & links */}
-      <div className='flex justify-between mt-10 font-matter'>
+      <div className='flex justify-between mt-10 font-matter mr-5 ml-5'>
         <div className='ml-2 font-matter'>
           <Link
             href='https://discord.com/channels/423160867534929930/1044996697090162698'
@@ -221,12 +222,14 @@ export default function Home() {
       </div>
       <div className='flex flex-col text-lg font-matter'>
         <p className='text-center'>Built with Livepeer Studio. Powered by Livepeer.</p>
-        <p className='text-center text-sm mt-1 mb-4 text-slate-400 font-thin container mx-auto px-[200px]'>
-          Create a video NFT from files up to 1GB and share it on any NFT marketplace. The Long Take
-          NFT Publisher ensures that video playback will be optimized for viewers on all bandwidths
-          and device types. Note, processing time varies based on size of the file and speed of the
-          network.
-        </p>
+        {!asset?.storage?.ipfs?.cid && (
+          <p className='text-center text-sm mt-1 mb-4 text-slate-400 font-thin container mx-auto sm:px-[200px] px-[100px]'>
+            Create a video NFT from files up to 1GB and share it on any NFT marketplace. The Long
+            Take NFT Publisher ensures that video playback will be optimized for viewers on all
+            bandwidths and device types. Note, processing time varies based on size of the file and
+            speed of the network.
+          </p>
+        )}
       </div>
       <div className='flex justify-center text-center font-matter'>
         {/* Displays upload form */}
@@ -246,7 +249,7 @@ export default function Home() {
                         <BsCheck2Circle className='text-green-600 text-xl mt-1 ml-4' />
                       </div>
                     ) : (
-                      <p className='text-center text-lg'>Click to browser or drag a file here</p>
+                      <p className='text-center text-lg'>Click to browse or drag a file here</p>
                     )}
                   </div>
                 </div>
@@ -399,10 +402,9 @@ export default function Home() {
                             {isLoading && <BarLoader color='#fff' />}
                           </button>
                         )}
-
                         <p className='mt-4 text-white'>
                           When your wallet interface appears, your video is ready to be minted!
-                        </p>
+                            </p>
                       </div>
                     ) : (
                       <></>
