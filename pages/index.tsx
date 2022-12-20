@@ -195,13 +195,13 @@ export default function Home() {
       <div className='flex justify-between mt-10 font-matter mr-5 ml-5'>
         <div className='ml-2 font-matter'>
           <Link
-            href='https://discord.com/channels/423160867534929930/1044996697090162698'
+            href='https://www.youtube.com/watch?v=1L1c37RpCNg'
             className='text-white mr-4 text-lg hover:text-blue-600 w-16'
           >
-            Tutorials
+            Tutorial
           </Link>
           <Link
-            href='https://discord.com/channels/423160867534929930/1044996697090162698'
+            href='https://medium.com/livepeer-blog/long-take-nft-publisher-faq-15289d6a3f0c'
             className='text-white mr-4 text-lg hover:text-blue-600 w-16'
           >
             FAQs
@@ -404,7 +404,7 @@ export default function Home() {
                         )}
                         <p className='mt-4 text-white'>
                           When your wallet interface appears, your video is ready to be minted!
-                            </p>
+                        </p>
                       </div>
                     ) : (
                       <></>
