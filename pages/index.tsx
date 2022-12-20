@@ -224,7 +224,7 @@ export default function Home() {
         <p className='text-center'>Built with Livepeer Studio. Powered by Livepeer.</p>
         {!asset?.storage?.ipfs?.cid && (
           <p className='text-center text-sm mt-1 mb-4 text-slate-400 font-thin container mx-auto sm:px-[200px] px-[100px]'>
-            Create a video NFT from files up to 1GB and share it on any NFT marketplace. The Long
+            Create a video NFT from files up to 10GB and share it on any NFT marketplace. The Long
             Take NFT Publisher ensures that video playback will be optimized for viewers on all
             bandwidths and device types. Note, processing time varies based on size of the file and
             speed of the network.
