@@ -80,6 +80,7 @@ export default function Home() {
             ipfs: true,
             metadata: {
               description,
+              image: null as any, // clear the default thumbnail
             },
           },
         }
