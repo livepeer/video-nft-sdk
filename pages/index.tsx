@@ -128,8 +128,8 @@ export default function Home() {
 
   // Providing the mint contract information
   const { config } = usePrepareContractWrite({
-    // The demo NFT contract address on Polygon Mainnet
-    address: '0x69C53E7b8c41bF436EF5a2D81DB759Dc8bD83b5F',
+    // Address of the Long Take NFT Original contract on Polygon Mainnet
+    address: '0xc3012D4b9D4EECCc29547FcFDd0542bD2F057Bc4',
     abi: videoNftAbi,
     // Function on the contract
     functionName: 'mint',
