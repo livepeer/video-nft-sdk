@@ -228,7 +228,7 @@ export default function Home() {
               )}
 
               {/* Displays the player with NFT information */}
-              {asset?.storage?.ipfs?.cid ? (
+              {asset?.status?.phase === "ready" ? (
                 <div>
                   <div className="flex flex-col justify-center items-center ml-5 font-matter">
                     <p className="mt-4 text-white">
@@ -326,27 +326,23 @@ export default function Home() {
 
                   {/* Upload Asset */}
                   <div className="flex justify-center">
-                    {asset?.status?.phase !== "ready" ? (
-                      <div>
-                        {!canUpload ? (
-                          <button className="rounded-lg p-3 bg-slate-800 opacity-50 cursor-not-allowed">
-                            Upload File
-                          </button>
-                        ) : (
-                          <button
-                            className="border border-transparent hover:text-blue-600 rounded-lg px-5 py-3 bg-slate-800 mr-5 hover:border-blue-600 font-matter"
-                            onClick={createAsset}
-                            // disabled={!video || isLoading || Boolean(asset)}
-                          >
-                            Upload File
-                            <br />
-                            {isLoading && <BarLoader color="#fff" />}
-                          </button>
-                        )}
-                      </div>
-                    ) : (
-                      <></>
-                    )}
+                    <div>
+                      {!canUpload ? (
+                        <button className="rounded-lg p-3 bg-slate-800 opacity-50 cursor-not-allowed">
+                          Upload File
+                        </button>
+                      ) : (
+                        <button
+                          className="border border-transparent hover:text-blue-600 rounded-lg px-5 py-3 bg-slate-800 mr-5 hover:border-blue-600 font-matter"
+                          onClick={createAsset}
+                          // disabled={!video || isLoading || Boolean(asset)}
+                        >
+                          Upload File
+                          <br />
+                          {isLoading && <BarLoader color="#fff" />}
+                        </button>
+                      )}
+                    </div>
                   </div>
 
                   <div className="text-center my-5 font-matter text-blue-600">
