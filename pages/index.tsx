@@ -1,25 +1,29 @@
 import Head from "next/head"
-import Image from "next/image"
 import { useMemo, useCallback, useState, useEffect } from "react"
 import {
   useAsset,
   useUpdateAsset,
   useCreateAsset,
   Player,
-  PlaybackMonitor,
 } from "@livepeer/react"
 import { ConnectButton } from "@rainbow-me/rainbowkit"
 import { useDropzone } from "react-dropzone"
 import BarLoader from "react-spinners/BarLoader"
-import PulseLoader from "react-spinners/PulseLoader"
 import { useAccount, useContractWrite, usePrepareContractWrite } from "wagmi"
 import styles from "../styles/MintNFT.module.css"
-import Link from "next/link"
-import titleImage from "../assets/titleImage.png"
+import "lit-share-modal-v3/dist/ShareModal.css"
+import LitShareModal from "lit-share-modal-v3"
 import { BsCheck2Circle } from "react-icons/bs"
 import { BsTwitter } from "react-icons/bs"
 
 import { videoNftAbi } from "../components/videoNftAbi"
+
+type LitGateParams = {
+  unifiedAccessControlConditions: any[]
+  permanent: boolean
+  chains: string[]
+  authSigTypes: string[]
+}
 
 export default function Home() {
   const [video, setVideo] = useState<File | null>(null)
@@ -33,6 +37,13 @@ export default function Home() {
   const [isProcessing, setIsProcessing] = useState<boolean>(false)
   const [showErrorMessage, setShowErrorMessage] = useState<boolean>(false)
   const [buttonClicked, setButtonClicked] = useState<boolean>(false)
+  const [showShareModal, setShowShareModal] = useState(false)
+  const [litGateParams, setLitGateParams] = useState<LitGateParams>({
+    unifiedAccessControlConditions: [],
+    permanent: false,
+    chains: [],
+    authSigTypes: [],
+  })
   const { address } = useAccount()
 
   // Creating an asset
@@ -200,14 +211,14 @@ export default function Home() {
   return (
     <div className={styles.container}>
       <Head>
-        <title> Long Take NFT Publisher</title>
-        <meta name="description" content=" Long Take NFT Publisher" />
+        <title>VOD Token Gating Sample</title>
+        <meta name="description" content="VOD Token Gating Sample" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
       {/* Wallet Connect Button  & links */}
       <div className="flex justify-between mt-10 font-matter mr-5 ml-5">
-        <div className="ml-2 font-matter">
+        {/* <div className="ml-2 font-matter">
           <Link
             href="https://www.youtube.com/watch?v=1L1c37RpCNg"
             className="text-white mr-4 text-lg hover:text-blue-600 w-16"
@@ -226,12 +237,12 @@ export default function Home() {
           >
             Support
           </Link>
-        </div>
+        </div> */}
         <ConnectButton />
       </div>
 
       {/* Title Image*/}
-      <div className="flex justify-center mt-8 font-matter">
+      {/* <div className="flex justify-center mt-8 font-matter">
         <Image
           src={titleImage}
           alt="title image"
@@ -239,18 +250,15 @@ export default function Home() {
           height={200}
           priority
         />
-      </div>
+      </div> */}
       <div className="flex flex-col text-lg font-matter">
         <p className="text-center">
-          Built with Livepeer Studio. Powered by Livepeer.
+          VOD Token Gating with Lit Signing Conditions
         </p>
         {!asset?.storage?.ipfs?.cid && (
           <p className="text-center text-sm mt-1 mb-4 text-slate-400 font-thin container mx-auto sm:px-[200px] px-[100px]">
-            Create a video NFT from files up to 10GB and share it on any NFT
-            marketplace. The Long Take NFT Publisher ensures that video playback
-            will be optimized for viewers on all bandwidths and device types.
-            Note, processing time varies based on size of the file and speed of
-            the network.
+            Upload an asset that will only be accessible to users passing the
+            specified Lit access conditions.
           </p>
         )}
       </div>
@@ -291,7 +299,7 @@ export default function Home() {
                       process in your wallet.
                     </p>
                     <div className="border border-solid border-blue-600 rounded-md p-6 mb-4 mt-5 lg:w-3/4 w-100 font-matter">
-                      <Player playbackId={asset?.storage?.ipfs?.cid} />
+                      <Player playbackId={asset?.playbackId} />
                     </div>
                     <div className="items-center w-3/4 font-matter">
                       {contractWriteData?.hash && isSuccess ? (
@@ -386,8 +394,76 @@ export default function Home() {
                       </p>
                     )}
                   </div>
-                  {/* Form for NFT creation */}
+
+                  {/* Form for Token Gating */}
                   <div className={styles.form}>
+                    <label
+                      htmlFor="lit-access-conditions"
+                      className="text-left"
+                    >
+                      Lit Unified Access Control Conditions:{" "}
+                      <span className="text-red-600">*</span>
+                    </label>
+                    <textarea
+                      className="rounded bg-slate-700 mb-2 h-52"
+                      value={JSON.stringify(
+                        litGateParams.unifiedAccessControlConditions,
+                        null,
+                        2
+                      )}
+                      name="lit-access-conditions"
+                      disabled={true}
+                    />
+                    <div className="flex flex-row content-start">
+                      <input
+                        type="checkbox"
+                        name="lit-access-conditions-permanent"
+                        checked={litGateParams.permanent}
+                        onChange={() => {
+                          setLitGateParams((curr) => ({
+                            ...curr,
+                            permanent: !curr.permanent,
+                          }))
+                        }}
+                      />
+                      <label
+                        htmlFor="lit-access-conditions-permanent"
+                        className="ml-2"
+                      >
+                        {" "}
+                        Permanent
+                      </label>
+                    </div>
+                    <button
+                      className="border border-transparent hover:text-blue-600 rounded-lg px-5 py-2 bg-slate-800 hover:border-blue-600 font-matter"
+                      onClick={() => setShowShareModal(true)}
+                    >
+                      Edit
+                    </button>
+
+                    {showShareModal && (
+                      <div className={styles["lit-share-modal"]}>
+                        <LitShareModal
+                          onClose={() => {
+                            setShowShareModal(false)
+                          }}
+                          injectInitialState={true}
+                          initialUnifiedAccessControlConditions={
+                            litGateParams?.unifiedAccessControlConditions
+                          }
+                          onUnifiedAccessControlConditionsSelected={(
+                            val: LitGateParams
+                          ) => {
+                            setLitGateParams(val)
+                            setShowShareModal(false)
+                          }}
+                          darkMode={true}
+                          injectCSS={false}
+                        />
+                      </div>
+                    )}
+                    <br />
+
                     <label htmlFor="asset-name" className="text-left">
                       Name: <span className="text-red-600">*</span>
                     </label>

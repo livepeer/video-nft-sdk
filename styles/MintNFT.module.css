@@ -102,8 +102,9 @@ border-radius: 5px;
 .form {
   display: flex;
   flex-direction: column;
-  marign: 10rem;
-  font-family: 'Matter', sans-serif; 
+  margin-left: 10rem;
+  margin-right: 10rem;
+  font-family: 'Matter', sans-serif;
 }
 
 .label {
@@ -179,6 +180,18 @@ color: #245cd8;
 
 .matter-font{
   font-family: 'Matter-Regular', sans-serif
+}
+
+.lit-share-modal{
+  width: 500px;
+  height: 700px;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  border: 1px solid #333;
+  border-radius: 0.25em;
+  z-index: 9000;
 }
 
 @media (max-width: 600px) {
