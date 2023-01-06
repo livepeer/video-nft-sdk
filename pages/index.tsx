@@ -1,35 +1,82 @@
 import Head from "next/head"
 import { useMemo, useCallback, useState, useEffect } from "react"
-import { useAsset, useCreateAsset } from "@livepeer/react"
+import {
+  Asset,
+  LivepeerProvider,
+  useAsset,
+  useCreateAsset,
+} from "@livepeer/react"
 import { ConnectButton } from "@rainbow-me/rainbowkit"
 import { useDropzone } from "react-dropzone"
 import BarLoader from "react-spinners/BarLoader"
-import { useAccount } from "wagmi"
+import { useAccount, useNetwork } from "wagmi"
 import styles from "../styles/MintNFT.module.css"
 import "lit-share-modal-v3/dist/ShareModal.css"
+import LitJsSdk from "lit-js-sdk"
 import LitShareModal from "lit-share-modal-v3"
 import { BsCheck2Circle } from "react-icons/bs"
 
 type LitGateParams = {
-  unifiedAccessControlConditions: any[]
+  unifiedAccessControlConditions: any[] | null
   permanent: boolean
   chains: string[]
   authSigTypes: string[]
 }
 
+interface BetaAsset extends Asset {
+  playbackPolicy: {
+    type: "public" | "lit_signing_condition"
+    unifiedAccessControlConditions: any[]
+    resourceId: Record<string, string>
+  }
+}
+
+const litNodeClient = new LitJsSdk.LitNodeClient()
+
 export default function Home() {
   const [video, setVideo] = useState<File | null>(null)
-  const [isSavingSigningCondition, setIsSavingSigningCondition] =
-    useState<boolean>()
-  const [isProcessing, setIsProcessing] = useState<boolean>(false)
   const [showShareModal, setShowShareModal] = useState(false)
   const [litGateParams, setLitGateParams] = useState<LitGateParams>({
-    unifiedAccessControlConditions: [],
+    unifiedAccessControlConditions: null,
     permanent: false,
     chains: [],
     authSigTypes: [],
   })
   const { address } = useAccount()
+  const { chain } = useNetwork()
+
+  const [litConnected, setIsLitConnected] = useState(false)
+  const [authSig, setAuthSig] = useState<Record<string, object>>({})
+  const [savedSigningConditionsId, setSavedSigningConditionsId] =
+    useState<string>()
+
+  useEffect(() => {
+    litNodeClient
+      .connect()
+      .then(() => setIsLitConnected(true))
+      .catch(() =>
+        alert(
+          "Failed connecting to Lit network! Refresh the page to try again."
+        )
+      )
+  })
+  // pre-sign the most common ethereum chain
+  useEffect(() => {
+    if (address && chain?.id && !authSig.ethereum) {
+      Promise.resolve().then(async () => {
+        try {
+          setAuthSig({
+            ethereum: await LitJsSdk.checkAndSignAuthMessage({
+              chain: "ethereum",
+              switchChain: false,
+            }),
+          })
+        } catch (err: any) {
+          alert(`Error signing auth message: ${err?.message || err}`)
+        }
+      })
+    }
+  }, [address, chain?.id, authSig])
 
   // Creating an asset
   const {
@@ -65,7 +112,7 @@ export default function Home() {
     data: asset,
     error,
     status: assetStatus,
-  } = useAsset({
+  } = useAsset<LivepeerProvider, BetaAsset>({
     assetId: createdAsset?.[0].id,
     refetchInterval: (asset) =>
       asset?.storage?.status?.phase !== "ready" ? 5000 : false,
@@ -97,20 +144,35 @@ export default function Home() {
 
   // Runs after an asset is created
   useEffect(() => {
-    if (createStatus === "success" && !isSavingSigningCondition) {
-      setIsSavingSigningCondition(true)
-      setIsProcessing(true)
-
-      // TODO: lit lit
+    if (
+      createStatus === "success" &&
+      asset?.id &&
+      asset?.id !== savedSigningConditionsId
+    ) {
+      setSavedSigningConditionsId(asset?.id)
+      Promise.resolve().then(async () => {
+        try {
+          await litNodeClient.saveSigningCondition({
+            unifiedAccessControlConditions:
+              asset?.playbackPolicy.unifiedAccessControlConditions,
+            authSig,
+            resourceId: asset?.playbackPolicy.resourceId,
+          })
+        } catch (err: any) {
+          alert(`Error saving signing condition: ${err?.message || err}`)
+        }
+      })
     }
-  }, [createStatus, isSavingSigningCondition])
+  }, [createStatus, savedSigningConditionsId, authSig, asset])
 
   const canUpload = useMemo(
     () =>
+      litConnected &&
       video &&
-      litGateParams.unifiedAccessControlConditions.length &&
-      createStatus === "idle",
-    [video, litGateParams, createStatus]
+      litGateParams.unifiedAccessControlConditions?.length &&
+      createStatus === "idle" &&
+      !asset,
+    [litConnected, video, litGateParams, createStatus, asset]
   )
 
   return (
@@ -122,40 +184,10 @@ export default function Home() {
       </Head>
 
       {/* Wallet Connect Button  & links */}
-      <div className="flex justify-between mt-10 font-matter mr-5 ml-5">
-        {/* <div className="ml-2 font-matter">
-          <Link
-            href="https://www.youtube.com/watch?v=1L1c37RpCNg"
-            className="text-white mr-4 text-lg hover:text-blue-600 w-16"
-          >
-            Tutorial
-          </Link>
-          <Link
-            href="https://medium.com/livepeer-blog/long-take-nft-publisher-faq-15289d6a3f0c"
-            className="text-white mr-4 text-lg hover:text-blue-600 w-16"
-          >
-            FAQs
-          </Link>
-          <Link
-            href="https://discord.com/channels/423160867534929930/1044996697090162698"
-            className="text-white text-lg hover:text-blue-600 w-16"
-          >
-            Support
-          </Link>
-        </div> */}
+      <div className="flex justify-end mt-10 font-matter mr-5 ml-5">
         <ConnectButton />
       </div>
 
-      {/* Title Image*/}
-      {/* <div className="flex justify-center mt-8 font-matter">
-        <Image
-          src={titleImage}
-          alt="title image"
-          width={700}
-          height={200}
-          priority
-        />
-      </div> */}
       <div className="flex flex-col text-lg font-matter">
         <p className="text-center">
           VOD Token Gating with Lit Signing Conditions
@@ -201,7 +233,14 @@ export default function Home() {
                   <div className="flex flex-col justify-center items-center ml-5 font-matter">
                     <p className="mt-4 text-white">
                       Your video is now ready to be played! Access and test
-                      token gated playback on the player page: TODO
+                      token gated playback on the player page:
+                      <a
+                        target={"_blank"}
+                        rel={"noreferrer"}
+                        href={`/watch/${asset?.playbackId}`}
+                      >
+                        Player
+                      </a>
                     </p>
                     {/* <div className="border border-solid border-blue-600 rounded-md p-6 mb-4 mt-5 lg:w-3/4 w-100 font-matter">
                       <Player playbackId={asset?.playbackId} />
@@ -210,14 +249,6 @@ export default function Home() {
                 </div>
               ) : (
                 <>
-                  <div className="text-center my-5 font-matter text-blue-600">
-                    {video && (
-                      <p className="text-xl text-white font-matter whitespace-pre-line">
-                        {progressFormatted}
-                      </p>
-                    )}
-                  </div>
-
                   {/* Form for Token Gating */}
                   <div className={styles.form}>
                     <label
@@ -229,11 +260,16 @@ export default function Home() {
                     </label>
                     <textarea
                       className="rounded bg-slate-700 mb-2 h-52"
-                      value={JSON.stringify(
-                        litGateParams.unifiedAccessControlConditions,
-                        null,
-                        2
-                      )}
+                      value={
+                        !litGateParams.unifiedAccessControlConditions
+                          ? ""
+                          : JSON.stringify(
+                              litGateParams.unifiedAccessControlConditions,
+                              null,
+                              2
+                            )
+                      }
+                      placeholder="Click Edit below to add conditions."
                       name="lit-access-conditions"
                       disabled={true}
                     />
@@ -290,8 +326,7 @@ export default function Home() {
 
                   {/* Upload Asset */}
                   <div className="flex justify-center">
-                    {asset?.status?.phase !== "ready" ||
-                    asset?.storage?.status?.phase !== "ready" ? (
+                    {asset?.status?.phase !== "ready" ? (
                       <div>
                         {!canUpload ? (
                           <button className="rounded-lg p-3 bg-slate-800 opacity-50 cursor-not-allowed">
@@ -308,14 +343,16 @@ export default function Home() {
                             {isLoading && <BarLoader color="#fff" />}
                           </button>
                         )}
-                        <p className="mt-4 text-white">
-                          When your wallet interface appears, your video is
-                          ready to be minted!
-                        </p>
                       </div>
                     ) : (
                       <></>
                     )}
+                  </div>
+
+                  <div className="text-center my-5 font-matter text-blue-600">
+                    <p className="text-xl text-white font-matter whitespace-pre-line">
+                      {progressFormatted}
+                    </p>
                   </div>
                 </>
               )}
