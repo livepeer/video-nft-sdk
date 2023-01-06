@@ -1,22 +1,14 @@
 import Head from "next/head"
 import { useMemo, useCallback, useState, useEffect } from "react"
-import {
-  useAsset,
-  useUpdateAsset,
-  useCreateAsset,
-  Player,
-} from "@livepeer/react"
+import { useAsset, useCreateAsset } from "@livepeer/react"
 import { ConnectButton } from "@rainbow-me/rainbowkit"
 import { useDropzone } from "react-dropzone"
 import BarLoader from "react-spinners/BarLoader"
-import { useAccount, useContractWrite, usePrepareContractWrite } from "wagmi"
+import { useAccount } from "wagmi"
 import styles from "../styles/MintNFT.module.css"
 import "lit-share-modal-v3/dist/ShareModal.css"
 import LitShareModal from "lit-share-modal-v3"
 import { BsCheck2Circle } from "react-icons/bs"
-import { BsTwitter } from "react-icons/bs"
-
-import { videoNftAbi } from "../components/videoNftAbi"
 
 type LitGateParams = {
   unifiedAccessControlConditions: any[]
@@ -27,16 +19,9 @@ type LitGateParams = {
 
 export default function Home() {
   const [video, setVideo] = useState<File | null>(null)
-  const [assetName, setAssetName] = useState<string>("")
-  const [disabled, setDisabled] = useState<boolean>(false)
-  const [description, setDescription] = useState<string>()
-  const [isWriteInProgress, setIsWriteInProgress] = useState<boolean>()
-  const [isUpdateAsset, setIsUpdateAsset] = useState<boolean>()
-  const [isFileSelected, setIsFileSelected] = useState<boolean>(false)
-  const [isUploadingToIPFS, setIsUploadingToIPFS] = useState<boolean>(false)
+  const [isSavingSigningCondition, setIsSavingSigningCondition] =
+    useState<boolean>()
   const [isProcessing, setIsProcessing] = useState<boolean>(false)
-  const [showErrorMessage, setShowErrorMessage] = useState<boolean>(false)
-  const [buttonClicked, setButtonClicked] = useState<boolean>(false)
   const [showShareModal, setShowShareModal] = useState(false)
   const [litGateParams, setLitGateParams] = useState<LitGateParams>({
     unifiedAccessControlConditions: [],
@@ -55,7 +40,7 @@ export default function Home() {
   } = useCreateAsset(
     video
       ? {
-          sources: [{ name: assetName, file: video }] as const,
+          sources: [{ name: video.name, file: video }] as const,
         }
       : null
   )
@@ -64,7 +49,6 @@ export default function Home() {
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
     if (acceptedFiles && acceptedFiles.length > 0 && acceptedFiles?.[0]) {
       setVideo(acceptedFiles[0])
-      setIsFileSelected(true)
     }
   }, [])
 
@@ -87,23 +71,6 @@ export default function Home() {
       asset?.storage?.status?.phase !== "ready" ? 5000 : false,
   })
 
-  // Storing asset to IPFS with metadata by updating the asset
-  const { mutate: updateAsset, status: updateStatus } = useUpdateAsset(
-    asset
-      ? {
-          name: assetName,
-          assetId: asset.id,
-          storage: {
-            ipfs: true,
-            metadata: {
-              description,
-              image: null as any, // clear the default thumbnail
-            },
-          },
-        }
-      : undefined
-  )
-
   // Displaying the  progress of uploading and processing the asset
   const progressFormatted = useMemo(
     () =>
@@ -119,94 +86,32 @@ export default function Home() {
     [progress]
   )
 
-  const uploading = useMemo(
-    () =>
-      progress?.[0].phase === "uploading"
-        ? " Uploading to the Livepeer network..."
-        : null,
-    [progress]
-  )
-
-  const processing = useMemo(
-    () =>
-      progress?.[0].phase === "processing"
-        ? `Uploading to the Livepeer network ✅
-     Processing to ensure optimal playback...`
-        : null,
-    [progress]
-  )
-
-  const uploadIPFS = useMemo(
-    () =>
-      progress?.[0].phase === "ready"
-        ? `Uploading to the Livepeer network ✅
-     Processing to ensure optimal playback ✅
-      Storing on IPFS...`
-        : null,
-    [progress]
-  )
-
-  // Providing the mint contract information
-  const { config } = usePrepareContractWrite({
-    // Address of the Long Take NFT Original contract on Polygon Mainnet
-    address: "0xc3012D4b9D4EECCc29547FcFDd0542bD2F057Bc4",
-    abi: videoNftAbi,
-    // Function on the contract
-    functionName: "mint",
-    // Arguments for the mint function
-    args:
-      address && asset?.storage?.ipfs?.nftMetadata?.url
-        ? [address, asset?.storage?.ipfs?.nftMetadata?.url]
-        : undefined,
-    enabled: Boolean(address && asset?.storage?.ipfs?.nftMetadata?.url),
-  })
-
-  // Writing to the mint contract
-  const {
-    data: contractWriteData,
-    isSuccess,
-    isLoading: isContractWriteLoading,
-    write,
-    error: contractWriteError,
-  } = useContractWrite(config)
-
   const isLoading = useMemo(
     () =>
       createStatus === "loading" ||
       assetStatus === "loading" ||
-      updateStatus === "loading" ||
       (asset && asset?.status?.phase !== "ready") ||
-      (asset?.storage && asset?.storage?.status?.phase !== "ready") ||
-      isContractWriteLoading,
-    [asset, assetStatus, updateStatus, isContractWriteLoading, createStatus]
+      (asset?.storage && asset?.storage?.status?.phase !== "ready"),
+    [asset, assetStatus, createStatus]
   )
 
   // Runs after an asset is created
   useEffect(() => {
-    if (!isUpdateAsset && updateAsset && updateStatus === "idle") {
-      setIsUploadingToIPFS(true)
-      setIsFileSelected(false)
-      // console.log('updateAsset', updateStatus);
-      setIsUpdateAsset(true)
+    if (createStatus === "success" && !isSavingSigningCondition) {
+      setIsSavingSigningCondition(true)
       setIsProcessing(true)
-      updateAsset()
-    }
-  }, [updateAsset, updateStatus, isUpdateAsset])
 
-  // Runs after an asset is uploaded to IPFS
-  useEffect(() => {
-    if (
-      !isWriteInProgress &&
-      asset?.storage?.status?.phase === "ready" &&
-      write
-    ) {
-      // console.log('assetPhase', asset?.storage?.status?.phase);
-      setIsWriteInProgress(true)
-      write()
+      // TODO: lit lit
     }
-  }, [write, asset?.storage?.status?.phase, isWriteInProgress])
+  }, [createStatus, isSavingSigningCondition])
 
-  let twitterLink = `https://twitter.com/intent/tweet?text=Check%20out%20my%20Video%20NFT%20📽️%0D${assetName}%20minted%20on%20the%20%23LongTakeNFT%20Publisher.%0D%0D🛠️%20Built%20with%20%40livepeerstudio%0D%20🌐%20Powered%20by%20%40Livepeer%0D%0DCreate%20your%20%23LongTakeNFT%20here%20👇%20https://lvpr.link/3VQQzU8`
+  const canUpload = useMemo(
+    () =>
+      video &&
+      litGateParams.unifiedAccessControlConditions.length &&
+      createStatus === "idle",
+    [video, litGateParams, createStatus]
+  )
 
   return (
     <div className={styles.container}>
@@ -295,92 +200,12 @@ export default function Home() {
                 <div>
                   <div className="flex flex-col justify-center items-center ml-5 font-matter">
                     <p className="mt-4 text-white">
-                      Your video is now ready to be minted! Complete minting
-                      process in your wallet.
+                      Your video is now ready to be played! Access and test
+                      token gated playback on the player page: TODO
                     </p>
-                    <div className="border border-solid border-blue-600 rounded-md p-6 mb-4 mt-5 lg:w-3/4 w-100 font-matter">
+                    {/* <div className="border border-solid border-blue-600 rounded-md p-6 mb-4 mt-5 lg:w-3/4 w-100 font-matter">
                       <Player playbackId={asset?.playbackId} />
-                    </div>
-                    <div className="items-center w-3/4 font-matter">
-                      {contractWriteData?.hash && isSuccess ? (
-                        <div className="flex font-matter"></div>
-                      ) : contractWriteError ? (
-                        <div>
-                          <button
-                            className="border border-transparent hover:text-blue-600 rounded-lg px-5 py-3 bg-slate-800 mr-5 hover:border-blue-600 font-matter"
-                            onClick={() =>
-                              setShowErrorMessage(!showErrorMessage)
-                            }
-                          >
-                            {showErrorMessage ? (
-                              <p>Hide Error</p>
-                            ) : (
-                              <p>Show Error</p>
-                            )}
-                          </button>
-                          <a href={`/`} rel="noreferrer">
-                            <button className="border border-transparent hover:text-blue-600 rounded-lg px-5 py-3 bg-slate-800 mr-5 hover:border-blue-600 font-matter">
-                              Return to Form
-                            </button>
-                          </a>
-                          {showErrorMessage && (
-                            <div className="border border-solid border-blue-600 rounded-md p-6 mb-4 mt-5 overflow-x-auto font-matter">
-                              <p className="text-center text-red-600 font-matter">
-                                {contractWriteError.message}
-                              </p>
-                            </div>
-                          )}
-                        </div>
-                      ) : (
-                        <></>
-                      )}
-                    </div>
-                    {/* Card with NFT Information */}
-                    <div className="border border-solid border-blue-600 rounded-md p-6 mb-4 mt-5 lg:w-3/4 w-96 font-matter">
-                      <div className="grid grid-row-2 font-matter">
-                        <h1 className="text-5xl place-self-start font-matter">
-                          {assetName}
-                        </h1>
-                        <a
-                          href={twitterLink}
-                          className="place-self-end"
-                          target="_blank"
-                          rel="noreferrer"
-                        >
-                          <button className="bg-sky-500 hover:bg-slate-200 rounded-md pr-4 p-2 mb-1  font-matter hover:text-sky-500">
-                            <span className="flex font-matter">
-                              <BsTwitter className="text-xl mt-0.5 " />
-                              <p className="text-xl  ml-1">Share</p>
-                            </span>{" "}
-                          </button>
-                        </a>
-                      </div>
-                      <div className="border-b-2 border-zinc-600 font-matter"></div>
-                      <div className="mt-2 font-matter">
-                        <p className="text-start text-xl font-matter">
-                          {description}
-                        </p>
-                      </div>
-                      <p className="text-center text-white hover:text-blue-600 mt-10 break-words font-matter">
-                        <div className="border-b-2 border-zinc-600 mb-4 font-matter"></div>
-                        Gateway URL:
-                        <br />
-                        <a href={asset?.storage?.ipfs?.gatewayUrl}>
-                          {asset?.storage?.ipfs?.gatewayUrl}
-                        </a>
-                      </p>
-                      {isSuccess && (
-                        <a
-                          target="_blank"
-                          href={`https://polygonscan.com/tx/${contractWriteData?.hash}`}
-                          rel="noreferrer"
-                        >
-                          <button className=" mt-6 rounded px-5 py-2 hover:bg-slate-800 mr-5 bg-zinc-700 font-matter">
-                            View Transaction
-                          </button>
-                        </a>
-                      )}
-                    </div>
+                    </div> */}
                   </div>
                 </div>
               ) : (
@@ -388,9 +213,7 @@ export default function Home() {
                   <div className="text-center my-5 font-matter text-blue-600">
                     {video && (
                       <p className="text-xl text-white font-matter whitespace-pre-line">
-                        {uploading}
-                        {processing}
-                        {uploadIPFS}
+                        {progressFormatted}
                       </p>
                     )}
                   </div>
@@ -463,33 +286,6 @@ export default function Home() {
                       </div>
                     )}
                     <br />
-
-                    <label htmlFor="asset-name" className="text-left">
-                      Name: <span className="text-red-600">*</span>
-                    </label>
-                    <input
-                      className="rounded bg-slate-700 p-1"
-                      type="text"
-                      value={assetName}
-                      name="asset-name"
-                      required
-                      placeholder="Type the name of your NFT here"
-                      disabled={disabled}
-                      onChange={(e) => setAssetName(e.target.value)}
-                    />
-                    <br />
-                    <label htmlFor="description" className="text-left">
-                      Description: <span className="text-red-600">*</span>
-                    </label>
-                    <textarea
-                      className="rounded bg-slate-700 mb-5 p-1"
-                      value={description}
-                      name="description"
-                      required
-                      placeholder="Type a description of your NFT here"
-                      disabled={disabled}
-                      onChange={(e) => setDescription(e.target.value)}
-                    />
                   </div>
 
                   {/* Upload Asset */}
@@ -497,23 +293,17 @@ export default function Home() {
                     {asset?.status?.phase !== "ready" ||
                     asset?.storage?.status?.phase !== "ready" ? (
                       <div>
-                        {!description ? (
+                        {!canUpload ? (
                           <button className="rounded-lg p-3 bg-slate-800 opacity-50 cursor-not-allowed">
-                            Create NFT
+                            Upload File
                           </button>
                         ) : (
                           <button
                             className="border border-transparent hover:text-blue-600 rounded-lg px-5 py-3 bg-slate-800 mr-5 hover:border-blue-600 font-matter"
-                            onClick={() => {
-                              if (video) {
-                                setDisabled(true),
-                                  setButtonClicked(true),
-                                  createAsset?.()
-                              }
-                            }}
+                            onClick={createAsset}
                             // disabled={!video || isLoading || Boolean(asset)}
                           >
-                            Create NFT
+                            Upload File
                             <br />
                             {isLoading && <BarLoader color="#fff" />}
                           </button>
