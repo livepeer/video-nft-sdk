@@ -87,6 +87,7 @@ export default function Home() {
   } = useCreateAsset(
     video
       ? {
+          // TODO: Need a way to set playback policy here without mutating SDK D:
           sources: [{ name: video.name, file: video }] as const,
         }
       : null
@@ -152,6 +153,8 @@ export default function Home() {
       setSavedSigningConditionsId(asset?.id)
       Promise.resolve().then(async () => {
         try {
+          // TODO: possibly sign other chains here
+
           await litNodeClient.saveSigningCondition({
             unifiedAccessControlConditions:
               asset?.playbackPolicy.unifiedAccessControlConditions,
@@ -192,12 +195,10 @@ export default function Home() {
         <p className="text-center">
           VOD Token Gating with Lit Signing Conditions
         </p>
-        {!asset?.storage?.ipfs?.cid && (
-          <p className="text-center text-sm mt-1 mb-4 text-slate-400 font-thin container mx-auto sm:px-[200px] px-[100px]">
-            Upload an asset that will only be accessible to users passing the
-            specified Lit access conditions.
-          </p>
-        )}
+        <p className="text-center text-sm mt-1 mb-4 text-slate-400 font-thin container mx-auto sm:px-[200px] px-[100px]">
+          Upload an asset that will only be accessible to users passing the
+          specified Lit access conditions.
+        </p>
       </div>
       <div className="flex justify-center text-center font-matter">
         {/* Displays upload form */}
@@ -306,6 +307,16 @@ export default function Home() {
                           onClose={() => {
                             setShowShareModal(false)
                           }}
+                          chainsAllowed={[
+                            "ethereum",
+                            "polygon",
+                            "arbitrum",
+                            "optimism",
+                            "rinkeby",
+                            "goerli",
+                            "ropstein",
+                            "mumbai",
+                          ]}
                           injectInitialState={true}
                           initialUnifiedAccessControlConditions={
                             litGateParams?.unifiedAccessControlConditions
