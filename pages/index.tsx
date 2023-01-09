@@ -24,11 +24,7 @@ type LitGateParams = {
 }
 
 interface BetaAsset extends Asset {
-  playbackPolicy: {
-    type: "public" | "lit_signing_condition"
-    unifiedAccessControlConditions: any[]
-    resourceId: Record<string, string>
-  }
+  playbackPolicy: AssetPlaybackPolicy
 }
 
 const litNodeClient = new LitJsSdk.LitNodeClient()
@@ -84,11 +80,20 @@ export default function Home() {
     data: createdAsset,
     status: createStatus,
     progress,
-  } = useCreateAsset(
+  } = useCreateAsset<LivepeerProvider, BetaCreateAssetSourceType>(
     video
       ? {
-          // TODO: Need a way to set playback policy here without mutating SDK D:
-          sources: [{ name: video.name, file: video }] as const,
+          sources: [
+            {
+              file: video,
+              name: video.name,
+              playbackPolicy: {
+                type: "lit_signing_condition",
+                unifiedAccessControlConditions:
+                  litGateParams.unifiedAccessControlConditions ?? [],
+              },
+            },
+          ] as const,
         }
       : null
   )
@@ -122,8 +127,8 @@ export default function Home() {
   // Displaying the  progress of uploading and processing the asset
   const progressFormatted = useMemo(
     () =>
-      progress?.[0].phase === "failed"
-        ? "Failed to process video."
+      progress?.[0].phase === "failed" || createStatus === "error"
+        ? "Failed to upload video."
         : progress?.[0].phase === "waiting"
         ? "Waiting"
         : progress?.[0].phase === "uploading"
@@ -131,7 +136,7 @@ export default function Home() {
         : progress?.[0].phase === "processing"
         ? `Video Processing: ${Math.round(progress?.[0].progress * 100)}%`
         : null,
-    [progress]
+    [progress, createStatus]
   )
 
   const isLoading = useMemo(

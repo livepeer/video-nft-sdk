@@ -12,11 +12,7 @@ import { PlaybackInfo } from "@livepeer/react"
 
 interface BetaPlaybackInfo extends PlaybackInfo {
   meta: PlaybackInfo["meta"] & {
-    playbackPolicy: {
-      type: "public" | "lit_signing_condition"
-      unifiedAccessControlConditions: any[]
-      resourceId: Record<string, string>
-    }
+    playbackPolicy: AssetPlaybackPolicy
   }
 }
 
