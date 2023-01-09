@@ -158,8 +158,6 @@ export default function Home() {
       setSavedSigningConditionsId(asset?.id)
       Promise.resolve().then(async () => {
         try {
-          // TODO: possibly sign other chains here
-
           await litNodeClient.saveSigningCondition({
             unifiedAccessControlConditions:
               asset?.playbackPolicy.unifiedAccessControlConditions,
@@ -312,6 +310,7 @@ export default function Home() {
                           onClose={() => {
                             setShowShareModal(false)
                           }}
+                          // TODO: support non-EVM chains here. Needs to update signing logic for multi-chain
                           chainsAllowed={[
                             "ethereum",
                             "polygon",
