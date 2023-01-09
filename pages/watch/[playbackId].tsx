@@ -59,43 +59,56 @@ export default function Home() {
 
   // pre-sign the most common ethereum chain
   useEffect(() => {
+    console.log("checking gating conditions", playbackInfo)
     const { type, resourceId, unifiedAccessControlConditions } =
       playbackInfo?.meta?.playbackPolicy ?? {}
     if (
+      litConnected &&
       playbackInfoStatus === "success" &&
       type === "lit_signing_condition" &&
       playbackUrl
     ) {
+      console.log("gating conditions met")
       setGateState("checking")
       Promise.resolve().then(async () => {
         try {
-          // TODO: Compute and signed the chains based on conditions
+          console.log("resolving")
+          // TODO: Compute and sign other chains based on conditions
           const ethSig = await LitJsSdk.checkAndSignAuthMessage({
             chain: "ethereum",
             switchChain: false,
           })
+          console.log("ethSig", ethSig)
 
           const jwt = await litNodeClient.getSignedToken({
             unifiedAccessControlConditions,
             authSig: { ethereum: ethSig },
             resourceId,
           })
+          console.log("jwt", jwt)
 
           const res = await fetch(
             `${playbackUrl.protocol}//${playbackUrl.host}/verify-lit-jwt`,
             {
               method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
               body: JSON.stringify({ playbackId, jwt }),
+              credentials: "include",
             }
           )
-          if (!res.ok) {
-            const [errors] = await res.json()
-            setGatingError(
-              `You are not allowed to view this content. Server error: ${errors[0]}`
-            )
-            setGateState("closed")
+          console.log("verify jwt", res)
+          if (res.ok) {
+            setGateState("open")
+            return
           }
-          setGateState("open")
+
+          const { errors } = await res.json()
+          setGatingError(
+            `You are not allowed to view this content. Server error: ${errors[0]}`
+          )
+          setGateState("closed")
         } catch (err: any) {
           setGatingError(`Error signing auth token: ${err?.message || err}`)
           setGateState("closed")
@@ -104,7 +117,7 @@ export default function Home() {
     } else {
       setGateState("open")
     }
-  }, [playbackInfoStatus, playbackInfo, playbackId, playbackUrl])
+  }, [litConnected, playbackInfoStatus, playbackInfo, playbackId, playbackUrl])
 
   const readyToPlay = useMemo(
     () =>

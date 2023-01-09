@@ -237,13 +237,14 @@ export default function Home() {
                   <div className="flex flex-col justify-center items-center ml-5 font-matter">
                     <p className="mt-4 text-white">
                       Your video is now ready to be played! Access and test
-                      token gated playback on the player page:
+                      token gated playback on the{" "}
                       <a
+                        className="text-blue-600"
                         target={"_blank"}
                         rel={"noreferrer"}
                         href={`/watch/${asset?.playbackId}`}
                       >
-                        Player
+                        player page
                       </a>
                     </p>
                     {/* <div className="border border-solid border-blue-600 rounded-md p-6 mb-4 mt-5 lg:w-3/4 w-100 font-matter">

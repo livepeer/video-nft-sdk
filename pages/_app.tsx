@@ -24,11 +24,13 @@ import {
   CreateAssetSource,
   CreateAssetSourceType,
   MirrorSizeArray,
+  PlaybackInfo,
 } from "livepeer/types"
 import {
   FetchOptions,
   LivepeerProviderFn,
 } from "livepeer/dist/declarations/src/providers/base"
+import { StudioPlaybackInfo } from "livepeer/dist/declarations/src/providers/studio/types"
 
 declare global {
   type AssetPlaybackPolicy = {
@@ -74,6 +76,18 @@ class BetaLivepeerStudioProvider extends StudioLivepeerProvider {
       }
     }
     return super._create(url, options)
+  }
+
+  _mapToPlaybackInfo(studioPlaybackInfo: StudioPlaybackInfo): PlaybackInfo {
+    return {
+      ...studioPlaybackInfo,
+      meta: {
+        ...studioPlaybackInfo?.["meta"],
+        live: studioPlaybackInfo?.["meta"]?.["live"]
+          ? Boolean(studioPlaybackInfo?.["meta"]["live"])
+          : false,
+      },
+    }
   }
 }
 
