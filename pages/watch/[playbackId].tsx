@@ -1,6 +1,7 @@
 import Head from "next/head"
-import { useMemo, useState, useEffect } from "react"
-import { LivepeerProvider, Player } from "@livepeer/react"
+import { useMemo, useState, useEffect, useRef } from "react"
+import { LivepeerProvider } from "@livepeer/react"
+import { createNewHls, isHlsSupported } from "livepeer/media/hls"
 import { ConnectButton } from "@rainbow-me/rainbowkit"
 import { useAccount } from "wagmi"
 import styles from "../../styles/MintNFT.module.css"
@@ -26,6 +27,8 @@ export default function Home() {
   const [litConnected, setIsLitConnected] = useState(false)
   const [gatingError, setGatingError] = useState<string>()
   const [gateState, setGateState] = useState<"open" | "closed" | "checking">()
+
+  const videoElm = useRef<HTMLVideoElement>(null)
 
   useEffect(() => {
     litNodeClient
@@ -127,6 +130,28 @@ export default function Home() {
         gateState === "open"),
     [address, playbackInfoStatus, playbackInfo, gateState]
   )
+
+  const [videoSrc, setVideoSrc] = useState<string>()
+  useEffect(() => {
+    if (!playbackUrl || !readyToPlay || !videoElm.current) return
+
+    if (!isHlsSupported()) {
+      // browser supports hls natively
+      setVideoSrc(playbackUrl.toString())
+    } else {
+      createNewHls(
+        playbackUrl.toString(),
+        videoElm.current,
+        {},
+        {
+          xhrSetup(xhr, url) {
+            xhr.withCredentials = true
+          },
+        }
+      )
+    }
+  }, [playbackUrl, readyToPlay])
+
   return (
     <div className={styles.container}>
       <Head>
@@ -153,7 +178,17 @@ export default function Home() {
           {readyToPlay ? (
             <div className="flex flex-col justify-center items-center ml-5 font-matter">
               <div className="border border-solid border-blue-600 rounded-md p-6 mb-4 mt-5 lg:w-3/4 w-100 font-matter">
-                <Player playbackId={playbackId} objectFit="contain" />
+                <video
+                  controls
+                  width="100%"
+                  autoPlay
+                  muted
+                  crossOrigin="use-credentials"
+                  ref={videoElm}
+                  src={videoSrc}
+                >
+                  <track kind="captions" />
+                </video>
               </div>
             </div>
           ) : gatingError || pinfoError ? (
