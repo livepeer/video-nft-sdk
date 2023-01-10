@@ -62,65 +62,63 @@ export default function Home() {
 
   // pre-sign the most common ethereum chain
   useEffect(() => {
-    // console.log("checking gating conditions", playbackInfo)
+    if (playbackInfoStatus !== "success") return
+
     const { type, resourceId, unifiedAccessControlConditions } =
       playbackInfo?.meta?.playbackPolicy ?? {}
-    if (
-      address &&
-      litConnected &&
-      playbackInfoStatus === "success" &&
-      type === "lit_signing_condition" &&
-      playbackUrl
-    ) {
-      // console.log("gating conditions met")
-      setGateState("checking")
-      Promise.resolve().then(async () => {
-        try {
-          // console.log("resolving")
-          // TODO: Compute and sign other chains based on conditions
-          const ethSig = await LitJsSdk.checkAndSignAuthMessage({
-            chain: "ethereum",
-            switchChain: false,
-          })
-          // console.log("ethSig", ethSig)
-
-          const jwt = await litNodeClient.getSignedToken({
-            unifiedAccessControlConditions,
-            authSig: { ethereum: ethSig },
-            resourceId,
-          })
-          // console.log("jwt", jwt)
-
-          const res = await fetch(
-            `${playbackUrl.protocol}//${playbackUrl.host}/verify-lit-jwt`,
-            {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({ playbackId, jwt }),
-              credentials: "include",
-            }
-          )
-          // console.log("verify jwt", res)
-          if (res.ok) {
-            setGateState("open")
-            return
-          }
-
-          const { errors } = await res.json()
-          setGatingError(
-            `You are not allowed to view this content. Server error: ${errors[0]}`
-          )
-          setGateState("closed")
-        } catch (err: any) {
-          setGatingError(`Error signing auth token: ${err?.message || err}`)
-          setGateState("closed")
-        }
-      })
-    } else {
+    if (type !== "lit_signing_condition") {
       setGateState("open")
+      return
     }
+    setGateState("checking")
+
+    if (!address || !litConnected || !playbackUrl) {
+      // console.log("not ready to check gate")
+      return
+    }
+    // console.log("checking gating conditions", playbackInfo)
+    Promise.resolve().then(async () => {
+      try {
+        // console.log("resolving")
+        // TODO: Compute and sign other chains based on conditions
+        const ethSig = await LitJsSdk.checkAndSignAuthMessage({
+          chain: "ethereum",
+          switchChain: false,
+        })
+        // console.log("ethSig", ethSig)
+
+        const jwt = await litNodeClient.getSignedToken({
+          unifiedAccessControlConditions,
+          authSig: { ethereum: ethSig },
+          resourceId,
+        })
+        // console.log("jwt", jwt)
+
+        const res = await fetch(
+          `${playbackUrl.protocol}//${playbackUrl.host}/verify-lit-jwt`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ playbackId, jwt }),
+            credentials: "include",
+          }
+        )
+        // console.log("verify jwt", res)
+        if (!res.ok) {
+          const { errors } = await res.json()
+          throw new Error(errors[0])
+        }
+        setGateState("open")
+      } catch (err: any) {
+        const msg = err?.message || err
+        setGatingError(
+          `You are not allowed to view this content. Gate error: ${msg}`
+        )
+        setGateState("closed")
+      }
+    })
   }, [
     address,
     litConnected,
