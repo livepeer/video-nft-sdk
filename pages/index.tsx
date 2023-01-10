@@ -15,6 +15,7 @@ import "lit-share-modal-v3/dist/ShareModal.css"
 import LitJsSdk from "lit-js-sdk"
 import LitShareModal from "lit-share-modal-v3"
 import { BsCheck2Circle } from "react-icons/bs"
+import useLit from "../lib/use-lit"
 
 type LitGateParams = {
   unifiedAccessControlConditions: any[] | null
@@ -23,40 +24,42 @@ type LitGateParams = {
   authSigTypes: string[]
 }
 
-interface BetaAsset extends Asset {
-  playbackPolicy: AssetPlaybackPolicy
-}
-
-const litNodeClient = new LitJsSdk.LitNodeClient()
-
 export default function Home() {
   const [video, setVideo] = useState<File | null>(null)
   const [showShareModal, setShowShareModal] = useState(false)
+  const { address } = useAccount()
+  const { chain } = useNetwork()
+
+  const { litNodeClient, litConnected } = useLit()
   const [litGateParams, setLitGateParams] = useState<LitGateParams>({
     unifiedAccessControlConditions: null,
     permanent: false,
     chains: [],
     authSigTypes: [],
   })
-  const { address } = useAccount()
-  const { chain } = useNetwork()
 
-  const [litConnected, setIsLitConnected] = useState(false)
   const [authSig, setAuthSig] = useState<Record<string, object>>({})
   const [savedSigningConditionsId, setSavedSigningConditionsId] =
     useState<string>()
 
-  useEffect(() => {
-    litNodeClient
-      .connect()
-      .then(() => setIsLitConnected(true))
-      .catch(() =>
-        alert(
-          "Failed connecting to Lit network! Refresh the page to try again."
-        )
-      )
+  // Drag and Drop file function
+  const onDrop = useCallback(async (acceptedFiles: File[]) => {
+    if (acceptedFiles && acceptedFiles.length > 0 && acceptedFiles?.[0]) {
+      setVideo(acceptedFiles[0])
+    }
+  }, [])
+
+  const { getRootProps, getInputProps } = useDropzone({
+    accept: {
+      "video/*": [".mp4"],
+    },
+    maxFiles: 1,
+    onDrop,
   })
-  // pre-sign the most common ethereum chain
+
+  // Core Upload+Gate flow
+
+  // Step 1: pre-sign the most common ethereum chain
   useEffect(() => {
     if (address && chain?.id && !authSig.ethereum) {
       Promise.resolve().then(async () => {
@@ -74,7 +77,7 @@ export default function Home() {
     }
   }, [address, chain?.id, authSig])
 
-  // Creating an asset
+  // Step 2: Creating an asset
   const {
     mutate: createAsset,
     data: createdAsset,
@@ -98,22 +101,7 @@ export default function Home() {
       : null
   )
 
-  // Drag and Drop file function
-  const onDrop = useCallback(async (acceptedFiles: File[]) => {
-    if (acceptedFiles && acceptedFiles.length > 0 && acceptedFiles?.[0]) {
-      setVideo(acceptedFiles[0])
-    }
-  }, [])
-
-  const { getRootProps, getInputProps } = useDropzone({
-    accept: {
-      "video/*": [".mp4"],
-    },
-    maxFiles: 1,
-    onDrop,
-  })
-
-  // Getting asset and refreshing for the status
+  // Step 3: Getting asset and refreshing for the status
   const {
     data: asset,
     error,
@@ -123,6 +111,31 @@ export default function Home() {
     refetchInterval: (asset) =>
       asset?.storage?.status?.phase !== "ready" ? 5000 : false,
   })
+
+  // Step 4: After an asset is created, save the signing condition
+  useEffect(() => {
+    if (
+      createStatus === "success" &&
+      asset?.id &&
+      asset?.id !== savedSigningConditionsId
+    ) {
+      setSavedSigningConditionsId(asset?.id)
+      Promise.resolve().then(async () => {
+        try {
+          await litNodeClient.saveSigningCondition({
+            unifiedAccessControlConditions:
+              asset?.playbackPolicy.unifiedAccessControlConditions,
+            authSig,
+            resourceId: asset?.playbackPolicy.resourceId,
+          })
+        } catch (err: any) {
+          alert(`Error saving signing condition: ${err?.message || err}`)
+        }
+      })
+    }
+  }, [litNodeClient, createStatus, savedSigningConditionsId, authSig, asset])
+
+  // Upload state feedback in the UI:
 
   // Displaying the  progress of uploading and processing the asset
   const progressFormatted = useMemo(
@@ -147,29 +160,6 @@ export default function Home() {
       (asset?.storage && asset?.storage?.status?.phase !== "ready"),
     [asset, assetStatus, createStatus]
   )
-
-  // Runs after an asset is created
-  useEffect(() => {
-    if (
-      createStatus === "success" &&
-      asset?.id &&
-      asset?.id !== savedSigningConditionsId
-    ) {
-      setSavedSigningConditionsId(asset?.id)
-      Promise.resolve().then(async () => {
-        try {
-          await litNodeClient.saveSigningCondition({
-            unifiedAccessControlConditions:
-              asset?.playbackPolicy.unifiedAccessControlConditions,
-            authSig,
-            resourceId: asset?.playbackPolicy.resourceId,
-          })
-        } catch (err: any) {
-          alert(`Error saving signing condition: ${err?.message || err}`)
-        }
-      })
-    }
-  }, [createStatus, savedSigningConditionsId, authSig, asset])
 
   const canUpload = useMemo(
     () =>
