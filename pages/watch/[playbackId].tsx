@@ -62,33 +62,34 @@ export default function Home() {
 
   // pre-sign the most common ethereum chain
   useEffect(() => {
-    console.log("checking gating conditions", playbackInfo)
+    // console.log("checking gating conditions", playbackInfo)
     const { type, resourceId, unifiedAccessControlConditions } =
       playbackInfo?.meta?.playbackPolicy ?? {}
     if (
+      address &&
       litConnected &&
       playbackInfoStatus === "success" &&
       type === "lit_signing_condition" &&
       playbackUrl
     ) {
-      console.log("gating conditions met")
+      // console.log("gating conditions met")
       setGateState("checking")
       Promise.resolve().then(async () => {
         try {
-          console.log("resolving")
+          // console.log("resolving")
           // TODO: Compute and sign other chains based on conditions
           const ethSig = await LitJsSdk.checkAndSignAuthMessage({
             chain: "ethereum",
             switchChain: false,
           })
-          console.log("ethSig", ethSig)
+          // console.log("ethSig", ethSig)
 
           const jwt = await litNodeClient.getSignedToken({
             unifiedAccessControlConditions,
             authSig: { ethereum: ethSig },
             resourceId,
           })
-          console.log("jwt", jwt)
+          // console.log("jwt", jwt)
 
           const res = await fetch(
             `${playbackUrl.protocol}//${playbackUrl.host}/verify-lit-jwt`,
@@ -101,7 +102,7 @@ export default function Home() {
               credentials: "include",
             }
           )
-          console.log("verify jwt", res)
+          // console.log("verify jwt", res)
           if (res.ok) {
             setGateState("open")
             return
@@ -120,7 +121,14 @@ export default function Home() {
     } else {
       setGateState("open")
     }
-  }, [litConnected, playbackInfoStatus, playbackInfo, playbackId, playbackUrl])
+  }, [
+    address,
+    litConnected,
+    playbackInfoStatus,
+    playbackInfo,
+    playbackId,
+    playbackUrl,
+  ])
 
   const readyToPlay = useMemo(
     () =>
