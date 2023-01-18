@@ -80,11 +80,13 @@ class BetaLivepeerStudioProvider extends StudioLivepeerProvider {
   }
 }
 
+export const betaStudioApiKey = "fbc655bf-8920-43b4-be8c-6dd0c35447a5"
+
 export function betaStudioProvider(): LivepeerProviderFn<BetaLivepeerStudioProvider> {
   return () =>
     new BetaLivepeerStudioProvider({
       name: "Livepeer Studio Beta",
       baseUrl: "https://livepeer.monster/api",
-      apiKey: "fbc655bf-8920-43b4-be8c-6dd0c35447a5",
+      apiKey: betaStudioApiKey,
     })
 }

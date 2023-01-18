@@ -10,6 +10,7 @@ import { useRouter } from "next/router"
 import { usePlaybackInfo } from "@livepeer/react/hooks"
 import useLit from "../../lib/use-lit"
 import GatedPlayer from "../../lib/GatedPlayer"
+import { betaStudioApiKey } from "../../lib/livepeer"
 
 async function checkLitGate(
   litNodeClient: any,
@@ -43,6 +44,7 @@ async function checkLitGate(
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        Authorization: `Bearer ${betaStudioApiKey}`,
       },
       body: JSON.stringify({ playbackId, jwt }),
       credentials: "include",
