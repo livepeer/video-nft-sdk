@@ -17,7 +17,7 @@ const LitClientContext = createContext({
 export const LitProvider: FunctionComponent<{
   children?: React.ReactNode
 }> = ({ children }) => {
-  const client = useMemo(() => new LitJsSdk.LitNodeClient(), [])
+  const client = useMemo(() => new LitJsSdk.LitNodeClient({ debug: false }), [])
   const [connected, setConnected] = useState(false)
 
   useEffect(() => {
