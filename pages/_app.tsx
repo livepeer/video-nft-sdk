@@ -17,7 +17,7 @@ import { betaStudioProvider } from "../lib/livepeer"
 import { LitProvider } from "../lib/use-lit"
 
 const { chains, provider, webSocketProvider } = configureChains(
-  [chain.polygon],
+  [chain.mainnet, chain.polygon, chain.arbitrum, chain.optimism],
   [
     infuraProvider({ apiKey: process.env.NEXT_PUBLIC_INFURA_API_KEY }),
     publicProvider(),
