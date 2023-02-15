@@ -24,6 +24,8 @@ async function checkLitGate(
   playbackPolicy: AssetPlaybackPolicy,
   apiKey: string
 ) {
+  await new Promise((resolve) => setTimeout(resolve, 10000))
+
   if (playbackPolicy.type !== "lit_signing_condition") {
     throw new Error("not a lit gated asset")
   }
@@ -163,26 +165,37 @@ const GatedPlayer: FunctionComponent<
         gateState === "open"),
     [playbackInfoStatus, playbackInfo, gateState]
   )
+  const hasError = useMemo(
+    () => pinfoError || (gateState === "closed" && gatingError),
+    [pinfoError, gateState, gatingError]
+  )
 
   return (
     <>
-      {readyToPlay ? (
-        <div className="flex flex-col justify-center items-center ml-5 font-matter">
-          <div className="border border-solid border-blue-600 rounded-md p-6 mb-4 mt-5 lg:w-3/4 w-100 font-matter">
+      <div className="relative font-matter w-full aspect-video bg-black">
+        {hasError ? (
+          <div className="absolute top-0 bottom-0 left-0 right-0 flex flex-col justify-center items-center font-matter z-10">
+            <p className="text-red-600 mx-20">
+              {gatingError || pinfoError?.message}
+            </p>
+          </div>
+        ) : (
+          <>
             <Player
-              src={playbackUrl?.toString()}
+              src={readyToPlay ? playbackUrl?.toString() : ""}
               allowCrossOriginCredentials={true}
               controls={{ defaultVolume: 1 }}
               autoPlay={true}
               {...props}
             />
-          </div>
-        </div>
-      ) : pinfoError || (gateState === "closed" && gatingError) ? (
-        <p className="text-red-600">{gatingError || pinfoError?.message}</p>
-      ) : (
-        <p>Checking gate...</p>
-      )}
+            {readyToPlay ? null : (
+              <div className="absolute top-0 bottom-0 left-0 right-0 flex flex-col justify-center items-center font-matter mt-10 z-10">
+                <p className="text-green-100 pt-20">Checking gate...</p>
+              </div>
+            )}
+          </>
+        )}
+      </div>
     </>
   )
 }
