@@ -40,6 +40,8 @@ export const LitProvider: FunctionComponent<{
   )
 }
 
-export default function useLit() {
+export function useLit() {
   return useContext(LitClientContext)
 }
+
+export { default as LitJsSdk } from "lit-js-sdk"
