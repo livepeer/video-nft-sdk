@@ -32,7 +32,7 @@ export default function Home() {
   const { litNodeClient, litConnected } = useLit()
   const [litGateParams, setLitGateParams] = useState<LitGateParams>({
     unifiedAccessControlConditions: null,
-    permanent: false,
+    permanent: true,
     chains: [],
     authSigTypes: [],
   })
