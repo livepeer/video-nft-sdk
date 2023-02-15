@@ -38,7 +38,9 @@ export default function Home() {
           {!address ? (
             <p>Please connect your wallet</p>
           ) : (
-            <GatedPlayer playbackId={playbackId} />
+            <div className="w-full aspect-video">
+              <GatedPlayer playbackId={playbackId} />
+            </div>
           )}
         </div>
       </div>

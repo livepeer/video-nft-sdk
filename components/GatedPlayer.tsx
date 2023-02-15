@@ -24,8 +24,6 @@ async function checkLitGate(
   playbackPolicy: AssetPlaybackPolicy,
   apiKey: string
 ) {
-  await new Promise((resolve) => setTimeout(resolve, 10000))
-
   if (playbackPolicy.type !== "lit_signing_condition") {
     throw new Error("not a lit gated asset")
   }
@@ -172,7 +170,7 @@ const GatedPlayer: FunctionComponent<
 
   return (
     <>
-      <div className="relative font-matter w-full aspect-video bg-black">
+      <div className="relative font-matter w-full h-full bg-black">
         {hasError ? (
           <div className="absolute top-0 bottom-0 left-0 right-0 flex flex-col justify-center items-center font-matter z-10">
             <p className="text-red-600 mx-20">
