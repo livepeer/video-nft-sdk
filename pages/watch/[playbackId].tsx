@@ -1,6 +1,6 @@
 import Head from "next/head"
 import { useMemo, useState, useEffect } from "react"
-import { LivepeerProvider } from "@livepeer/react"
+import { LivepeerProvider, Player } from "@livepeer/react"
 import { ConnectButton } from "@rainbow-me/rainbowkit"
 import { useAccount } from "wagmi"
 import styles from "../../styles/MintNFT.module.css"
@@ -9,7 +9,6 @@ import LitJsSdk from "lit-js-sdk"
 import { useRouter } from "next/router"
 import { usePlaybackInfo } from "@livepeer/react/hooks"
 import useLit from "../../lib/use-lit"
-import GatedPlayer from "../../lib/GatedPlayer"
 import { betaStudioApiKey } from "../../lib/livepeer"
 
 async function checkLitGate(
@@ -160,7 +159,12 @@ export default function Home() {
           {readyToPlay ? (
             <div className="flex flex-col justify-center items-center ml-5 font-matter">
               <div className="border border-solid border-blue-600 rounded-md p-6 mb-4 mt-5 lg:w-3/4 w-100 font-matter">
-                <GatedPlayer playbackUrl={playbackUrl?.toString()} />
+                <Player
+                  src={playbackUrl?.toString()}
+                  allowCrossOriginCredentials={true}
+                  controls={{ defaultVolume: 1 }}
+                  autoPlay={true}
+                />
               </div>
             </div>
           ) : !address ? (

@@ -5,11 +5,6 @@ import {
   MirrorSizeArray,
   PlaybackInfo,
 } from "livepeer/types"
-import {
-  FetchOptions,
-  LivepeerProviderFn,
-} from "livepeer/dist/declarations/src/providers/base"
-import { StudioPlaybackInfo } from "livepeer/dist/declarations/src/providers/studio/types"
 
 declare global {
   type AssetPlaybackPolicy = {
@@ -37,8 +32,12 @@ declare global {
   }
 }
 
-class BetaLivepeerStudioProvider extends StudioLivepeerProvider {
+class BetaStudioLivepeerProvider extends StudioLivepeerProvider {
   _extraFields: Record<string, object> = {}
+
+  // async createAsset<TSource extends CreateAssetSourceType>(
+  //   args: CreateAssetArgs<TSource>
+  // ): Promise<MirrorSizeArray<TSource, Asset>>
 
   async createAsset<TSource extends BetaCreateAssetSourceType>(
     args: CreateAssetArgs<TSource>
@@ -50,10 +49,7 @@ class BetaLivepeerStudioProvider extends StudioLivepeerProvider {
     return await super.createAsset(args)
   }
 
-  _create<T, P>(
-    url: `/${string}`,
-    options?: FetchOptions<P> | undefined
-  ): Promise<T> {
+  _create<T, P>(url: `/${string}`, options?: any | undefined): Promise<T> {
     const extra = this._extraFields[(options?.json as any)?.name]
     if (extra) {
       options = {
@@ -66,25 +62,13 @@ class BetaLivepeerStudioProvider extends StudioLivepeerProvider {
     }
     return super._create(url, options)
   }
-
-  _mapToPlaybackInfo(studioPlaybackInfo: StudioPlaybackInfo): PlaybackInfo {
-    return {
-      ...studioPlaybackInfo,
-      meta: {
-        ...studioPlaybackInfo?.["meta"],
-        live: studioPlaybackInfo?.["meta"]?.["live"]
-          ? Boolean(studioPlaybackInfo?.["meta"]["live"])
-          : false,
-      },
-    }
-  }
 }
 
 export const betaStudioApiKey = "0aa291a2-7c42-47a3-8790-a65294264fb4"
 
-export function betaStudioProvider(): LivepeerProviderFn<BetaLivepeerStudioProvider> {
+export function betaStudioProvider(): () => BetaStudioLivepeerProvider {
   return () =>
-    new BetaLivepeerStudioProvider({
+    new BetaStudioLivepeerProvider({
       name: "Livepeer Studio",
       baseUrl: "https://livepeer.studio/api",
       apiKey: betaStudioApiKey,
