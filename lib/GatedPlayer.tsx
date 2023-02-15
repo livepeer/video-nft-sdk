@@ -2,18 +2,20 @@ import {
   LivepeerProvider,
   Player,
   PlayerProps,
+  StudioLivepeerProviderConfig,
+  useLivepeerProvider,
   usePlaybackInfo,
 } from "@livepeer/react"
-import { FunctionComponent, useEffect, useMemo, useRef, useState } from "react"
-import { useAccount } from "wagmi"
-import { betaStudioApiKey } from "./livepeer"
-import { useLit, LitJsSdk } from "./use-lit"
+import { FunctionComponent, useEffect, useMemo, useState } from "react"
+
+import LitJsSdk from "lit-js-sdk"
 
 async function checkLitGate(
   litNodeClient: any,
   playbackId: string,
   playbackUrl: URL,
-  playbackPolicy: AssetPlaybackPolicy
+  playbackPolicy: AssetPlaybackPolicy,
+  apiKey: string
 ) {
   if (playbackPolicy.type !== "lit_signing_condition") {
     throw new Error("not a lit gated asset")
@@ -41,7 +43,7 @@ async function checkLitGate(
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${betaStudioApiKey}`,
+        Authorization: `Bearer ${apiKey}`,
       },
       body: JSON.stringify({ playbackId, jwt }),
       credentials: "include",
@@ -59,11 +61,35 @@ const GatedPlayer: FunctionComponent<
     playbackId: string
   } & Exclude<PlayerProps, "src">
 > = ({ playbackId, ...props }) => {
-  const { address } = useAccount()
-  const { litNodeClient, litConnected } = useLit()
-
   const [gatingError, setGatingError] = useState<string>()
   const [gateState, setGateState] = useState<"open" | "closed" | "checking">()
+
+  const provider = useLivepeerProvider()
+  const apiKey = useMemo(() => {
+    const config = provider.getConfig() as StudioLivepeerProviderConfig
+    return config.apiKey
+  }, [provider])
+
+  const [litConnected, setLitConnected] = useState(false)
+  const litNodeClient = useMemo(
+    () =>
+      new LitJsSdk.LitNodeClient({
+        debug: false,
+        alertWhenUnauthorized: false,
+      }),
+    []
+  )
+  useEffect(() => {
+    setLitConnected(false)
+    litNodeClient
+      .connect()
+      .then(() => setLitConnected(true))
+      .catch(() =>
+        alert(
+          "Failed connecting to Lit network! Refresh the page to try again."
+        )
+      )
+  }, [litNodeClient])
 
   // Step 1: Fetch playback URL
   const {
@@ -96,13 +122,13 @@ const GatedPlayer: FunctionComponent<
     }
     setGateState("checking")
 
-    if (!address || !litConnected || !playbackUrl) {
+    if (!litConnected || !playbackUrl) {
       // console.log("not ready to check gate")
       return
     }
 
     // console.log("checking gating conditions", playbackInfo)
-    checkLitGate(litNodeClient, playbackId, playbackUrl, playbackPolicy)
+    checkLitGate(litNodeClient, playbackId, playbackUrl, playbackPolicy, apiKey)
       .then(() => setGateState("open"))
       .catch((err: any) => {
         const msg = err?.message || err
@@ -112,24 +138,23 @@ const GatedPlayer: FunctionComponent<
         setGateState("closed")
       })
   }, [
-    address,
     litNodeClient,
     litConnected,
     playbackInfoStatus,
     playbackInfo,
     playbackId,
     playbackUrl,
+    apiKey,
   ])
 
   // UI state integration
 
   const readyToPlay = useMemo(
     () =>
-      address &&
       playbackInfoStatus === "success" &&
       (playbackInfo?.meta?.playbackPolicy?.type !== "lit_signing_condition" ||
         gateState === "open"),
-    [address, playbackInfoStatus, playbackInfo, gateState]
+    [playbackInfoStatus, playbackInfo, gateState]
   )
 
   return (
@@ -146,8 +171,6 @@ const GatedPlayer: FunctionComponent<
             />
           </div>
         </div>
-      ) : !address ? (
-        <p>Please connect your wallet</p>
       ) : pinfoError || (gateState === "closed" && gatingError) ? (
         <p className="text-red-600">{gatingError || pinfoError?.message}</p>
       ) : (

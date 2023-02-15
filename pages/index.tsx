@@ -12,10 +12,9 @@ import BarLoader from "react-spinners/BarLoader"
 import { useAccount, useNetwork } from "wagmi"
 import styles from "../styles/MintNFT.module.css"
 import "lit-share-modal-v3/dist/ShareModal.css"
-import LitJsSdk from "lit-js-sdk"
 import LitShareModal from "lit-share-modal-v3"
 import { BsCheck2Circle } from "react-icons/bs"
-import useLit from "../lib/use-lit"
+import { useLit, LitJsSdk } from "../lib/use-lit"
 
 type LitGateParams = {
   unifiedAccessControlConditions: any[] | null
