@@ -1,9 +1,9 @@
-import { Asset, CreateAssetArgs } from "@livepeer/react"
 import { StudioLivepeerProvider } from "livepeer/providers/studio"
 import {
+  Asset,
+  CreateAssetArgs,
   CreateAssetSource,
   MirrorSizeArray,
-  PlaybackInfo,
 } from "livepeer/types"
 
 declare global {
