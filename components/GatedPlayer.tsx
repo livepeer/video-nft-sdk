@@ -187,7 +187,7 @@ const GatedPlayer: FunctionComponent<
           />
           {readyToPlay ? null : (
             <div className="absolute top-0 bottom-0 left-0 right-0 flex flex-col justify-center items-center font-matter mt-10 z-10">
-              <p className="text-green-100 pt-20">Checking gate...</p>
+              <p className="text-green-100 pt-20">Checking access...</p>
             </div>
           )}
         </>
