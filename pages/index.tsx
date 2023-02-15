@@ -316,6 +316,7 @@ export default function Home() {
                           initialUnifiedAccessControlConditions={
                             litGateParams?.unifiedAccessControlConditions
                           }
+                          permanentDefault={litGateParams?.permanent}
                           onUnifiedAccessControlConditionsSelected={(
                             val: LitGateParams
                           ) => {
