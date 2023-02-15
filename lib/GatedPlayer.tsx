@@ -1,5 +1,6 @@
 import {
   LivepeerProvider,
+  PlaybackInfo,
   Player,
   PlayerProps,
   StudioLivepeerProviderConfig,
@@ -9,6 +10,12 @@ import {
 import { FunctionComponent, useEffect, useMemo, useState } from "react"
 
 import LitJsSdk from "lit-js-sdk"
+
+interface BetaPlaybackInfo extends PlaybackInfo {
+  meta: PlaybackInfo["meta"] & {
+    playbackPolicy: AssetPlaybackPolicy
+  }
+}
 
 async function checkLitGate(
   litNodeClient: any,

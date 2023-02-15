@@ -24,12 +24,6 @@ declare global {
   type BetaCreateAssetSourceType =
     | ReadonlyArray<BetaCreateAssetSource>
     | Array<BetaCreateAssetSource>
-
-  interface BetaPlaybackInfo extends PlaybackInfo {
-    meta: PlaybackInfo["meta"] & {
-      playbackPolicy: AssetPlaybackPolicy
-    }
-  }
 }
 
 class BetaStudioLivepeerProvider extends StudioLivepeerProvider {
