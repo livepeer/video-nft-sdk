@@ -124,6 +124,7 @@ export default function Home() {
           await litNodeClient.saveSigningCondition({
             unifiedAccessControlConditions:
               asset?.playbackPolicy.unifiedAccessControlConditions,
+            permanent: litGateParams.permanent,
             authSig,
             resourceId: asset?.playbackPolicy.resourceId,
           })
