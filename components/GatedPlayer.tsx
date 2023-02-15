@@ -22,24 +22,29 @@ async function checkLitGate(
   playbackId: string,
   playbackUrl: URL,
   playbackPolicy: AssetPlaybackPolicy,
-  apiKey: string
+  apiKey: string,
+  authSig?: Record<string, string>
 ) {
   if (playbackPolicy.type !== "lit_signing_condition") {
     throw new Error("not a lit gated asset")
   }
 
   // console.log("resolving")
-  // TODO: Compute and sign other chains based on conditions
-  const ethSig = await LitJsSdk.checkAndSignAuthMessage({
-    chain: "ethereum",
-    switchChain: false,
-  })
+  if (!authSig) {
+    // TODO: Compute and sign other chains based on conditions
+    authSig = {
+      ethereum: await LitJsSdk.checkAndSignAuthMessage({
+        chain: "ethereum",
+        switchChain: false,
+      }),
+    }
+  }
   // console.log("ethSig", ethSig)
 
   const jwt = await litNodeClient.getSignedToken({
     unifiedAccessControlConditions:
       playbackPolicy.unifiedAccessControlConditions,
-    authSig: { ethereum: ethSig },
+    authSig,
     resourceId: playbackPolicy.resourceId,
   })
   // console.log("jwt", jwt)
@@ -66,8 +71,9 @@ async function checkLitGate(
 const GatedPlayer: FunctionComponent<
   {
     playbackId: string
+    authSig?: Record<string, string>
   } & Exclude<PlayerProps, "src">
-> = ({ playbackId, ...props }) => {
+> = ({ playbackId, authSig, ...props }) => {
   const [gatingError, setGatingError] = useState<string>()
   const [gateState, setGateState] = useState<"open" | "closed" | "checking">()
 
@@ -135,7 +141,15 @@ const GatedPlayer: FunctionComponent<
     }
 
     // console.log("checking gating conditions", playbackInfo)
-    checkLitGate(litNodeClient, playbackId, playbackUrl, playbackPolicy, apiKey)
+    const checkProm = checkLitGate(
+      litNodeClient,
+      playbackId,
+      playbackUrl,
+      playbackPolicy,
+      apiKey,
+      authSig
+    )
+    checkProm
       .then(() => setGateState("open"))
       .catch((err: any) => {
         const msg = err?.message || err
@@ -152,6 +166,7 @@ const GatedPlayer: FunctionComponent<
     playbackId,
     playbackUrl,
     apiKey,
+    authSig,
   ])
 
   // UI state integration
