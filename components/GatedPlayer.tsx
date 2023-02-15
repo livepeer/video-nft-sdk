@@ -66,6 +66,9 @@ async function checkLitGate(
     const { errors } = await res.json()
     throw new Error(errors[0])
   }
+
+  // Here, the /verify-lit-jwt will have set a cookie that allows access to the
+  // video. We can just return from this function and playback the video now.
 }
 
 const GatedPlayer: FunctionComponent<
